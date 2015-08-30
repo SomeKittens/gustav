@@ -11,6 +11,14 @@
   "typescript": {
     "definition": "index.d.ts"
   },
+  "bugs": {
+    "url": "https://github.com/SomeKittens/gustav/issues"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "git@github.com:SomeKittens/gustav.git"
+  },
+  "license": "MIT",
   "author": "Randall Koutnik",
   "dependencies": {
     "bluebird": "^2.9.33",
