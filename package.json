@@ -1,0 +1,27 @@
+{
+  "name": "gustav",
+  "version": "0.0.0",
+  "description": "Realtime data processing",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc --module commonjs --watch scratch.ts",
+    "test": "mocha -R nyan",
+    "coverage": "istanbul cover _mocha -- -u exports -R nyan test/tests.js"
+  },
+  "typescript": {
+    "definition": "index.d.ts"
+  },
+  "author": "Randall Koutnik",
+  "dependencies": {
+    "bluebird": "^2.9.33",
+    "cheerio": "^0.19.0",
+    "pg": "^4.4.0",
+    "request": "^2.60.0",
+    "rx": "^2.5.3",
+    "tail": "^0.4.0"
+  },
+  "devDependencies": {
+    "chai": "~2.1.1",
+    "istanbul": "^0.3.17"
+  }
+}

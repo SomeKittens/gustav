@@ -1,0 +1,24 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "rx/rx.d.ts": {
+      "commit": "625cd68fed45e3230393af71bcde1d36706f3d56"
+    },
+    "rx/rx-lite.d.ts": {
+      "commit": "625cd68fed45e3230393af71bcde1d36706f3d56"
+    },
+    "bluebird/bluebird.d.ts": {
+      "commit": "38c6ccfde0e67ff10d7408e0ee8b7720b3f21d3b"
+    },
+    "node/node.d.ts": {
+      "commit": "5109e1269d6ab8e8e73b1a5e85d8ceb836d3099f"
+    },
+    "form-data/form-data.d.ts": {
+      "commit": "5109e1269d6ab8e8e73b1a5e85d8ceb836d3099f"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "watch": true
+  },
+  "target": "es5",
+  "files": [
+    "index.ts",
+    "helpers.ts"
+  ]
+}
