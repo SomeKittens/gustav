@@ -79,7 +79,7 @@ export class FileSource extends Gustav.Source {
 
 ### Transform
 
-A Transform node (`Gustav.Transform`) takes observable(s), modifies the data in some way (map/filter/buffer/etc) and returns the observable post-transform.  **Do not create new observables (via `Rx.Observable.create`) in a Transform!**
+A Transform node (`Gustav.Transform`) takes observable(s), modifies the data in some way (map/filter/buffer/etc) and returns the observable post-transform.
 
 Examples:
 
