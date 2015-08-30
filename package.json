@@ -1,6 +1,6 @@
 {
   "name": "gustav",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Realtime data processing",
   "main": "index.js",
   "scripts": {
