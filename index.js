@@ -54,7 +54,7 @@ var Gustav;
         function callSomething(currentDepTree, taskList) {
             return taskList.map(function (Task) {
                 // Build this layer of the dependency tree
-                var o = {};
+                var currentDeps = {};
                 var name = Task.name;
                 var deps = null;
                 // TODO: Throw if given a non-Source class with no deps
@@ -70,14 +70,14 @@ var Gustav;
                         deps = Task.dependencies();
                     }
                 }
-                o[name] = deps ? [] : null;
-                var newLen = currentDepTree.push(o);
+                currentDeps[name] = deps ? [] : null;
+                var newLen = currentDepTree.push(currentDeps);
                 // If we've already created this Node, don't instantiate another
                 // TODO: Allow recreation
                 if (cache[name]) {
                     return cache[name];
                 }
-                var n = new Task();
+                var node = new Task();
                 if (deps) {
                     if (!(deps instanceof Array)) {
                         deps = [deps];
@@ -89,10 +89,10 @@ var Gustav;
                     else {
                         upstream = rx_1.Observable.merge(upstream);
                     }
-                    cache[name] = n.run(upstream);
+                    cache[name] = node.run(upstream);
                 }
                 else {
-                    cache[name] = n.run();
+                    cache[name] = node.run();
                 }
                 return cache[name];
             });
@@ -107,10 +107,6 @@ var Gustav;
             .subscribe(function (datums) {
             outputStream.write(datums);
         });
-    }
-    // TODO: create annotation that logs output of Node
-    function an() {
-        console.log('annotated');
     }
 })(Gustav || (Gustav = {}));
 exports["default"] = Gustav;

@@ -27,7 +27,7 @@ module Gustav {
     function callSomething(currentDepTree, taskList:Array<any>):any {
       return taskList.map((Task) => {
         // Build this layer of the dependency tree
-        let o = {};
+        let currentDeps = {};
         let name = Task.name;
         let deps = null;
 
@@ -44,8 +44,8 @@ module Gustav {
           }
         }
 
-        o[name] = deps ? [] : null;
-        let newLen = currentDepTree.push(o);
+        currentDeps[name] = deps ? [] : null;
+        let newLen = currentDepTree.push(currentDeps);
 
         // If we've already created this Node, don't instantiate another
         // TODO: Allow recreation
@@ -53,7 +53,7 @@ module Gustav {
           return cache[name];
         }
 
-        let n = new Task();
+        let node = new Task();
 
         if (deps) {
           if(!(deps instanceof Array)) {
@@ -65,9 +65,9 @@ module Gustav {
           } else {
             upstream = Observable.merge(upstream);
           }
-          cache[name] = n.run(upstream);
+          cache[name] = node.run(upstream);
         } else {
-          cache[name] = n.run();
+          cache[name] = node.run();
         }
         return cache[name];
       });
@@ -84,11 +84,6 @@ module Gustav {
     .subscribe((datums) => {
       outputStream.write(datums);
     });
-  }
-
-  // TODO: create annotation that logs output of Node
-  function an() {
-    console.log('annotated');
   }
 }
 
