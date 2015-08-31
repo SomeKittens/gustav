@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsc --module commonjs --watch scratch.ts",
     "test": "mocha -R nyan",
-    "coverage": "istanbul cover _mocha -- -u exports -R nyan test/tests.js"
+    "coverage": "istanbul cover _mocha -- -u exports -R nyan test/tests.js",
+    "define": "tsc --declaration *.ts --module commonjs"
   },
   "typescript": {
     "definition": "index.d.ts"
