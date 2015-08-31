@@ -2,8 +2,8 @@
 
 'use strict';
 
-import fs = require('fs');
-import Rx = require('rx');
+import * as fs from 'fs';
+import {Observable} from 'rx';
 
 module Gustav {
 
@@ -63,7 +63,7 @@ module Gustav {
           if (upstream.length === 1) {
             upstream = upstream[0];
           } else {
-            upstream = Rx.Observable.merge(upstream);
+            upstream = Observable.merge(upstream);
           }
           cache[name] = n.run(upstream);
         } else {
@@ -77,7 +77,7 @@ module Gustav {
     // console.log(JSON.stringify(depTree));
   }
 
-  function cacheOutput (name, observable:Rx.Observable<any>) {
+  function cacheOutput (name, observable:Observable<any>) {
     let outputStream = fs.createWriteStream('./data/' + name);
 
     observable
@@ -92,4 +92,4 @@ module Gustav {
   }
 }
 
-export = Gustav;
+export default Gustav;

@@ -7,10 +7,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var core = require('./index');
-var Rx = require('rx');
-var t = require('tail');
-var Tail = t.Tail;
+var index_1 = require('./index');
+var rx_1 = require('rx');
+var tail_1 = require('tail');
 // Reads lines from a file live & emits them
 // https://github.com/lucagrulla/node-tail
 var FileSource = (function (_super) {
@@ -26,15 +25,15 @@ var FileSource = (function (_super) {
         this.fromStart = fromStart;
     }
     FileSource.prototype.run = function () {
-        var logTail = new Tail(this.filename, this.lineSeparator, this.watchOptions, this.fromStart);
-        return Rx.Observable.create(function (o) {
+        var logTail = new tail_1.Tail(this.filename, this.lineSeparator, this.watchOptions, this.fromStart);
+        return rx_1.Observable.create(function (o) {
             logTail.on('line', function (line) { return o.onNext(line); });
             logTail.on('err', function (err) { return o.onError(err); });
             logTail.on('end', function () { return o.onCompleted(); });
         }).publish().refCount();
     };
     return FileSource;
-})(core.Source);
+})(index_1["default"].Source);
 exports.FileSource = FileSource;
 // Untested, no clue if worky.  TODO
 var pg = require('pg');
@@ -64,7 +63,7 @@ var PostgresSource = (function (_super) {
     PostgresSource.prototype.run = function () {
         var _this = this;
         // Get data from something
-        return Rx.Observable.create(function (o) {
+        return rx_1.Observable.create(function (o) {
             _this.exec(function (db) { return db.queryAsync(_this.config.query); })
                 .then(function (data) {
                 data.rows.forEach(function (datum) { return o.onNext(datum); });
@@ -73,5 +72,5 @@ var PostgresSource = (function (_super) {
         });
     };
     return PostgresSource;
-})(core.Source);
+})(index_1["default"].Source);
 exports.PostgresSource = PostgresSource;

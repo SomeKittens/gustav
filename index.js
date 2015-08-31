@@ -7,7 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = new __();
 };
 var fs = require('fs');
-var Rx = require('rx');
+var rx_1 = require('rx');
 var Gustav;
 (function (Gustav) {
     // Using classes instead of interfaces for run-time info
@@ -87,7 +87,7 @@ var Gustav;
                         upstream = upstream[0];
                     }
                     else {
-                        upstream = Rx.Observable.merge(upstream);
+                        upstream = rx_1.Observable.merge(upstream);
                     }
                     cache[name] = n.run(upstream);
                 }
@@ -113,4 +113,4 @@ var Gustav;
         console.log('annotated');
     }
 })(Gustav || (Gustav = {}));
-module.exports = Gustav;
+exports["default"] = Gustav;

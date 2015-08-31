@@ -3,16 +3,15 @@
 
 'use strict';
 
-import Gustav = require('../../index');
+import Gustav from '../../index';
 
-import Rx = require('rx');
-import url = require('url');
+import {Observable} from 'rx';
+import {promisifyAll} from 'bluebird';
+import * as url from 'url';
+import * as r from 'request';
+import * as cheerio from 'cheerio';
 
-import bluebird = require('bluebird');
-import r = require('request');
-import cheerio = require('cheerio');
-
-let request = bluebird.promisifyAll(r);
+let request = promisifyAll(r);
 let site = 'http://rkoutnik.com';
 
 class SiteSource extends Gustav.Source {
@@ -43,7 +42,7 @@ class SiteSource extends Gustav.Source {
       });
     }
     getURL('/');
-    return Rx.Observable.create((o) => {
+    return Observable.create((o) => {
       nextLink = (page) => {
         // If it's a link for us, fire off another request
         page.links.filter(link => {
@@ -59,10 +58,10 @@ class SiteSource extends Gustav.Source {
 
 class FindTLD extends Gustav.Transformer {
   static dependencies = SiteSource;
-  run (iO: Rx.Observable<any>) {
+  run (iO: Observable<any>) {
     let seen = [];
     return iO
-    .flatMap(page => Rx.Observable.from(page.links, x => url.parse(x)))
+    .flatMap(page => Observable.from(page.links, x => url.parse(x)))
     .map(parsedURL => parsedURL.host || 'rkoutnik.com')
     .filter(str => seen.indexOf(str) === -1)
     .do(str => seen.push(str));
@@ -71,7 +70,7 @@ class FindTLD extends Gustav.Transformer {
 
 class LogLoader extends Gustav.Sink {
   static dependencies = FindTLD;
-  run(iO: Rx.Observable<any>) {
+  run(iO: Observable<any>) {
     iO.subscribe(
       // noop,
       obj => console.log('result', url.format(obj)),

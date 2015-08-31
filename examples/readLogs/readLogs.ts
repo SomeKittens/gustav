@@ -6,12 +6,12 @@
 // Trigger writing to the logs
 require('./genLogs');
 
-import Gustav = require('../../index');
-import helpers = require('../../helpers');
+import Gustav from '../../index';
+import {FileSource} from '../../helpers';
 
-import Rx = require('rx');
+import {Observable} from 'rx';
 
-class HTTPFileSource extends helpers.FileSource {
+class HTTPFileSource extends FileSource {
   constructor() {
     super('./httplogs', '\n', {}, true);
   }

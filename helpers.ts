@@ -3,16 +3,15 @@
 
 'use strict';
 
-import core = require('./index');
-import fs = require('fs');
-import Rx = require('rx');
+import Gustav from './index';
+import * as fs from 'fs';
+import {Observable} from 'rx';
 
-import t = require('tail');
-let Tail = t.Tail;
+import {Tail} from 'tail';
 
 // Reads lines from a file live & emits them
 // https://github.com/lucagrulla/node-tail
-export class FileSource extends core.Source {
+export class FileSource extends Gustav.Source {
   constructor(
     public filename: string,
     public lineSeparator = '\n',
@@ -28,7 +27,7 @@ export class FileSource extends core.Source {
       this.watchOptions,
       this.fromStart
     );
-    return Rx.Observable.create(o => {
+    return Observable.create(o => {
       logTail.on('line', (line) => o.onNext(line));
       logTail.on('err', (err) => o.onError(err));
       logTail.on('end', () => o.onCompleted());
@@ -43,7 +42,7 @@ import bluebird = require('bluebird');
 bluebird.promisifyAll(pg);
 bluebird.promisifyAll(pg.Client.prototype);
 
-export class PostgresSource extends core.Source {
+export class PostgresSource extends Gustav.Source {
   exec: Function;
   constructor(public config:any) {
     super();
@@ -63,7 +62,7 @@ export class PostgresSource extends core.Source {
   }
   run () {
     // Get data from something
-    return Rx.Observable.create(o => {
+    return Observable.create(o => {
       this.exec((db) => db.queryAsync(this.config.query))
       .then((data) => {
         data.rows.forEach(datum => o.onNext(datum));
