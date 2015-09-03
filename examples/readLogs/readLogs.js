@@ -36,22 +36,12 @@ var HTTPSplitter = (function (_super) {
     HTTPSplitter.dependencies = HTTPFileSource;
     return HTTPSplitter;
 })(index_1["default"].Transformer);
-var ConsoleLoader = (function (_super) {
-    __extends(ConsoleLoader, _super);
-    function ConsoleLoader() {
+var ConsoleSink = (function (_super) {
+    __extends(ConsoleSink, _super);
+    function ConsoleSink() {
         _super.call(this, 'File Logs');
     }
-    ConsoleLoader.dependencies = HTTPSplitter;
-    return ConsoleLoader;
+    ConsoleSink.dependencies = HTTPSplitter;
+    return ConsoleSink;
 })(helpers_1.LogSink);
-// class ConsoleLoader extends Gustav.Sink {
-//   static dependencies = HTTPSplitter;
-//   run(inputObservable:Rx.Observable<Object>) {
-//     inputObservable.subscribe(
-//       obj => consoleLoader.log(obj),
-//       (err) => consoleLoader.log('err: ', err),
-//       () => consoleLoader.log('Done')
-//     );
-//   }
-// }
-index_1["default"].init(ConsoleLoader);
+index_1["default"].init(ConsoleSink);

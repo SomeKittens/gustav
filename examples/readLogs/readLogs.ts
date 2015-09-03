@@ -31,11 +31,11 @@ class HTTPSplitter extends Gustav.Transformer {
   }
 }
 
-class ConsoleLoader extends LogSink {
+class ConsoleSink extends LogSink {
   static dependencies = HTTPSplitter;
   constructor() {
     super('File Logs');
   }
 }
 
-Gustav.init(ConsoleLoader);
+Gustav.init(ConsoleSink);

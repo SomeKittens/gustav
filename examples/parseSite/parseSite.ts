@@ -68,7 +68,7 @@ class FindTLD extends Gustav.Transformer {
   }
 }
 
-class LogLoader extends Gustav.Sink {
+class LogSink extends Gustav.Sink {
   static dependencies = FindTLD;
   run(iO: Observable<any>) {
     iO.subscribe(
@@ -81,4 +81,4 @@ class LogLoader extends Gustav.Sink {
 }
 function noop(...items:Array<any>) {}
 
-Gustav.init(LogLoader);
+Gustav.init(LogSink);

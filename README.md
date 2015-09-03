@@ -9,7 +9,7 @@ Gustav makes realtime data processing simple and modular.
 
 ### Workflow
 
-Imagine a Gustav flow as a directed, acyclic graph.  `Source` nodes pull information out of the ether and pass them on to `Transform` nodes that process our data.  Ultimately, the data is outputted via `Output` nodes.  Gustav supports multiple inputs and outputs, so your app may look something like:
+Imagine a Gustav flow as a directed, acyclic graph.  `Source` nodes pull information out of the ether and pass them on to `Transform` nodes that process our data.  Ultimately, the data is outputted via `Sink` nodes.  Gustav supports multiple inputs and outputs, so your app may look something like:
 
 ```
 s1 --- t2 --- o2
@@ -27,7 +27,7 @@ Each node in Gustav is connected via a static `dependencies` property or method.
 
 #### Using a property
 ```TypeScript
-class MyOutput extends Gustav.Output {
+class MySink extends Gustav.Sink {
   static dependencies MySource;
   // Rest of class
 ```
@@ -43,12 +43,12 @@ class MyTransform extends Gustav.Transform {
 
 ### Naming
 
- - Typically, the input observable in `Transform` and `Output` nodes is called `iO`.
+ - Typically, the input observable in `Transform` and `Sink` nodes is called `iO`.
  - Nodes do not need the suffix "Transform" or "Source" unless you really want to
 
 ## Nodes
 
-Gustav has three types of nodes: `Source`, `Transform`, `Output`
+Gustav has three types of nodes: `Source`, `Transform`, `Sink`
 
 ### Source
 
@@ -119,15 +119,15 @@ class Timebox extends gustav.Transformer {
 }
 ```
 
-### Output
+### Sink
 
-Output nodes (`Gustav.Output`), surprisingly, output information.  These are usually dumb pipes.
+Sink nodes (`Gustav.Sink`), surprisingly, output information.  These are usually dumb pipes.
 
 Examples:
 
 ```TypeScript
 // Logs output to console
-class Log extends gustav.Loader {
+class Log extends gustav.Sink {
   static dependencies() {
     return SomeTransformer;
   }
@@ -139,7 +139,7 @@ class Log extends gustav.Loader {
 
 ```TypeScript
 // Sends output out on a websocket
-class WSTimebox extends gustav.Loader {
+class WSTimebox extends gustav.Sink {
   static dependencies() {
     return SomeOtherTransformer;
   }
