@@ -8,6 +8,7 @@ require('./genLogs');
 
 import Gustav from '../../index';
 import {FileSource, LogSink} from '../../helpers';
+import {logWithName} from '../../decorators';
 
 import {Observable} from 'rx';
 
@@ -19,6 +20,7 @@ class HTTPFileSource extends FileSource {
 
 class HTTPSplitter extends Gustav.Transformer {
   static dependencies = HTTPFileSource;
+  @logWithName('decorate')
   run(inputObservable:Rx.Observable<any>) {
     return inputObservable
     .map((str) => {

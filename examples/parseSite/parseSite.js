@@ -9,8 +9,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var index_1 = require('../../index');
 var rx_1 = require('rx');
-var url_1 = require('url');
 var bluebird_1 = require('bluebird');
+var url = require('url');
 var r = require('request');
 var cheerio = require('cheerio');
 var request = bluebird_1.promisifyAll(r);
@@ -25,7 +25,7 @@ var SiteSource = (function (_super) {
         var visited = [];
         function getURL(urlToScan) {
             urlToScan = urlToScan.replace(/#.*/, '');
-            var parsedURL = url_1.parse(urlToScan);
+            var parsedURL = url.parse(urlToScan);
             if (!parsedURL.host) {
                 urlToScan = site + urlToScan;
             }
@@ -50,7 +50,7 @@ var SiteSource = (function (_super) {
             nextLink = function (page) {
                 // If it's a link for us, fire off another request
                 page.links.filter(function (link) {
-                    var parsed = url_1.parse(link);
+                    var parsed = url.parse(link);
                     return !parsed.host || parsed.host === 'rkoutnik.com';
                 })
                     .map(getURL);
@@ -68,7 +68,7 @@ var FindTLD = (function (_super) {
     FindTLD.prototype.run = function (iO) {
         var seen = [];
         return iO
-            .flatMap(function (page) { return rx_1.Observable.from(page.links, function (x) { return url_1.parse(x); }); })
+            .flatMap(function (page) { return rx_1.Observable.from(page.links, function (x) { return url.parse(x); }); })
             .map(function (parsedURL) { return parsedURL.host || 'rkoutnik.com'; })
             .filter(function (str) { return seen.indexOf(str) === -1; })
             .do(function (str) { return seen.push(str); });
@@ -85,7 +85,7 @@ var LogLoader = (function (_super) {
         iO.subscribe(
         // noop,
         // noop,
-        function (obj) { return console.log('result', url_1.format(obj)); }, function (err) { return console.log(err); }, function () { return console.log('done'); });
+        function (obj) { return console.log('result', url.format(obj)); }, function (err) { return console.log(err); }, function () { return console.log('done'); });
     };
     LogLoader.dependencies = FindTLD;
     return LogLoader;

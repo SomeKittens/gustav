@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "watch": true
+    "watch": true,
+    "experimentalDecorators": true
   },
   "target": "es5",
   "files": [
     "index.ts",
-    "helpers.ts"
+    "helpers.ts",
+    "decorators.ts",
+    "examples/readLogs/readLogs.ts",
+    "examples/parseSite/parseSite.ts"
   ]
 }
