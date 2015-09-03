@@ -9,15 +9,15 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 // Trigger writing to the logs
 require('./genLogs');
-var gustav = require('../../index');
-var helpers = require('../../helpers');
+var index_1 = require('../../index');
+var helpers_1 = require('../../helpers');
 var HTTPFileSource = (function (_super) {
     __extends(HTTPFileSource, _super);
     function HTTPFileSource() {
         _super.call(this, './httplogs', '\n', {}, true);
     }
     return HTTPFileSource;
-})(helpers.FileSource);
+})(helpers_1.FileSource);
 var HTTPSplitter = (function (_super) {
     __extends(HTTPSplitter, _super);
     function HTTPSplitter() {
@@ -35,16 +35,23 @@ var HTTPSplitter = (function (_super) {
     };
     HTTPSplitter.dependencies = HTTPFileSource;
     return HTTPSplitter;
-})(gustav.Transformer);
+})(index_1["default"].Transformer);
 var ConsoleLoader = (function (_super) {
     __extends(ConsoleLoader, _super);
     function ConsoleLoader() {
-        _super.apply(this, arguments);
+        _super.call(this, 'File Logs');
     }
-    ConsoleLoader.prototype.run = function (inputObservable) {
-        inputObservable.subscribe(function (obj) { return console.log(obj); }, function (err) { return console.log('err: ', err); }, function () { return console.log('Done'); });
-    };
     ConsoleLoader.dependencies = HTTPSplitter;
     return ConsoleLoader;
-})(gustav.Sink);
-gustav.init(ConsoleLoader);
+})(helpers_1.LogSink);
+// class ConsoleLoader extends Gustav.Sink {
+//   static dependencies = HTTPSplitter;
+//   run(inputObservable:Rx.Observable<Object>) {
+//     inputObservable.subscribe(
+//       obj => consoleLoader.log(obj),
+//       (err) => consoleLoader.log('err: ', err),
+//       () => consoleLoader.log('Done')
+//     );
+//   }
+// }
+index_1["default"].init(ConsoleLoader);

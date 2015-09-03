@@ -35,6 +35,31 @@ var FileSource = (function (_super) {
     return FileSource;
 })(index_1["default"].Source);
 exports.FileSource = FileSource;
+// Logs every event to the console.
+var LogSink = (function (_super) {
+    __extends(LogSink, _super);
+    function LogSink(name) {
+        if (name === void 0) { name = 'Gustav'; }
+        _super.call(this);
+        this.name = name;
+        console.log(this.name);
+    }
+    LogSink.prototype.run = function (iO) {
+        var _this = this;
+        iO.forEach(
+        // Regular
+        // Regular
+        function (datum) { return console.log(_this.name, datum); }, 
+        // Errors
+        // Errors
+        function (err) { return console.error(_this.name, err); }, 
+        // Done
+        // Done
+        function () { return console.log(_this.name, 'Finished'); });
+    };
+    return LogSink;
+})(index_1["default"].Sink);
+exports.LogSink = LogSink;
 // Untested, no clue if worky.  TODO
 var pg = require('pg');
 var bluebird = require('bluebird');

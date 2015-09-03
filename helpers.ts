@@ -35,6 +35,24 @@ export class FileSource extends Gustav.Source {
   }
 }
 
+// Logs every event to the console.
+export class LogSink extends Gustav.Sink {
+  constructor(public name='Gustav') {
+    super();
+    console.log(this.name);
+  }
+  run(iO) {
+    iO.forEach(
+      // Regular
+      datum => console.log(this.name, datum),
+      // Errors
+      err => console.error(this.name, err),
+      // Done
+      () => console.log(this.name, 'Finished')
+    );
+  }
+}
+
 // Untested, no clue if worky.  TODO
 import pg = require('pg');
 import bluebird = require('bluebird');

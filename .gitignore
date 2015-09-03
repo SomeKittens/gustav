@@ -2,3 +2,6 @@ node_modules/*
 typings/*
 notes
 npm-debug.log
+
+# Used in examples
+httplogs

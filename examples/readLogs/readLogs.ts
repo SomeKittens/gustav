@@ -7,7 +7,7 @@
 require('./genLogs');
 
 import Gustav from '../../index';
-import {FileSource} from '../../helpers';
+import {FileSource, LogSink} from '../../helpers';
 
 import {Observable} from 'rx';
 
@@ -31,14 +31,10 @@ class HTTPSplitter extends Gustav.Transformer {
   }
 }
 
-class ConsoleLoader extends Gustav.Sink {
+class ConsoleLoader extends LogSink {
   static dependencies = HTTPSplitter;
-  run(inputObservable:Rx.Observable<Object>) {
-    inputObservable.subscribe(
-      obj => console.log(obj),
-      (err) => console.log('err: ', err),
-      () => console.log('Done')
-    );
+  constructor() {
+    super('File Logs');
   }
 }
 
