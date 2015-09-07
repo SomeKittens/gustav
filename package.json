@@ -1,6 +1,6 @@
 {
   "name": "gustav",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Realtime data processing",
   "main": "index.js",
   "scripts": {
@@ -15,9 +15,9 @@
   "bugs": {
     "url": "https://github.com/SomeKittens/gustav/issues"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "git@github.com:SomeKittens/gustav.git"
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SomeKittens/gustav.git"
   },
   "license": "MIT",
   "author": "Randall Koutnik",
