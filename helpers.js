@@ -9,7 +9,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var index_1 = require('./index');
 var rx_1 = require('rx');
-var tail_1 = require('tail');
+// import {Tail} from 'tail';
+var Tail = require('tail').Tail;
 // Reads lines from a file live & emits them
 // https://github.com/lucagrulla/node-tail
 var FileSource = (function (_super) {
@@ -25,7 +26,7 @@ var FileSource = (function (_super) {
         this.fromStart = fromStart;
     }
     FileSource.prototype.run = function () {
-        var logTail = new tail_1.Tail(this.filename, this.lineSeparator, this.watchOptions, this.fromStart);
+        var logTail = new Tail(this.filename, this.lineSeparator, this.watchOptions, this.fromStart);
         return rx_1.Observable.create(function (o) {
             logTail.on('line', function (line) { return o.onNext(line); });
             logTail.on('err', function (err) { return o.onError(err); });
@@ -33,7 +34,7 @@ var FileSource = (function (_super) {
         }).publish().refCount();
     };
     return FileSource;
-})(index_1["default"].Source);
+})(index_1.default.Source);
 exports.FileSource = FileSource;
 // Logs every event to the console.
 var LogSink = (function (_super) {
@@ -58,7 +59,7 @@ var LogSink = (function (_super) {
         function () { return console.log(_this.name, 'Finished'); });
     };
     return LogSink;
-})(index_1["default"].Sink);
+})(index_1.default.Sink);
 exports.LogSink = LogSink;
 // Untested, no clue if worky.  TODO
 var pg = require('pg');
@@ -97,5 +98,5 @@ var PostgresSource = (function (_super) {
         });
     };
     return PostgresSource;
-})(index_1["default"].Source);
+})(index_1.default.Source);
 exports.PostgresSource = PostgresSource;

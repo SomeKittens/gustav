@@ -7,7 +7,8 @@ import Gustav from './index';
 import * as fs from 'fs';
 import {Observable} from 'rx';
 
-import {Tail} from 'tail';
+// import {Tail} from 'tail';
+var Tail = require('tail').Tail;
 
 // Reads lines from a file live & emits them
 // https://github.com/lucagrulla/node-tail
