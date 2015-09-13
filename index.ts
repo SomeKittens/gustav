@@ -17,7 +17,7 @@ module Gustav {
   export class Transformer extends Node {}
   export class Sink extends Node {}
 
-  export function noop () {}
+  export function noop (...items:Array<any>) {}
 
   export function init (...nodes:Array<Node>) {
 

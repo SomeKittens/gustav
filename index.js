@@ -42,7 +42,12 @@ var Gustav;
         return Sink;
     })(Node);
     Gustav.Sink = Sink;
-    function noop() { }
+    function noop() {
+        var items = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            items[_i - 0] = arguments[_i];
+        }
+    }
     Gustav.noop = noop;
     function init() {
         var nodes = [];
