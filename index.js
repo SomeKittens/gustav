@@ -1,117 +1,60 @@
 /// <reference path="typings/tsd.d.ts" />
+/// <reference path="../../../.nvm/versions/node/v4.0.0/lib/node_modules/typescript/lib/lib.es6.d.ts" />
 'use strict';
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var fs = require('fs');
-var rx_1 = require('rx');
-var Gustav;
-(function (Gustav) {
-    // Using classes instead of interfaces for run-time info
-    var Node = (function () {
-        function Node() {
-        }
-        ;
-        return Node;
-    })();
-    Gustav.Node = Node;
-    var Source = (function (_super) {
-        __extends(Source, _super);
-        function Source() {
-            _super.apply(this, arguments);
-        }
-        return Source;
-    })(Node);
-    Gustav.Source = Source;
-    var Transformer = (function (_super) {
-        __extends(Transformer, _super);
-        function Transformer() {
-            _super.apply(this, arguments);
-        }
-        return Transformer;
-    })(Node);
-    Gustav.Transformer = Transformer;
-    var Sink = (function (_super) {
-        __extends(Sink, _super);
-        function Sink() {
-            _super.apply(this, arguments);
-        }
-        return Sink;
-    })(Node);
-    Gustav.Sink = Sink;
-    function noop() {
-        var items = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            items[_i - 0] = arguments[_i];
-        }
+var Rx = require('@reactivex/rxjs');
+var GustavGraph_1 = require('./GustavGraph');
+var Gustav = (function () {
+    function Gustav() {
+        this.ggraph = new GustavGraph_1.default();
     }
-    Gustav.noop = noop;
-    function init() {
-        var nodes = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            nodes[_i - 0] = arguments[_i];
-        }
-        var depTree = [];
-        var cache = {};
-        function callSomething(currentDepTree, taskList) {
-            return taskList.map(function (Task) {
-                // Build this layer of the dependency tree
-                var currentDeps = {};
-                var name = Task.name;
-                var deps = null;
-                // TODO: Throw if given a non-Source class with no deps
-                if (Task.dependencies) {
-                    // Three possiblities
-                    // - Function, instanceof Node
-                    // - Array<Node>
-                    // - Function, returns one of the above
-                    if (Task.dependencies.prototype instanceof Node || Array.isArray(Task.dependencies)) {
-                        deps = Task.dependencies;
-                    }
-                    else {
-                        deps = Task.dependencies();
-                    }
+    // TODO: new type of registration that's just a singleton
+    // Just calls NodeFactory and returns the symbol
+    Gustav.prototype.register = function (type, name, factory) {
+        var _this = this;
+        // TODO: Return some sort of object so this can be chained
+        // let splitText = SplitText()
+        // .addDep(fetchPageText);
+        return function () {
+            var config = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                config[_i - 0] = arguments[_i];
+            }
+            // Attempt to detect config to make symbol tag more descriptive
+            var symbolTag = name;
+            if (config.length) {
+                if (!(config[0] instanceof Object)) {
+                    symbolTag += '-' + config[0];
                 }
-                currentDeps[name] = deps ? [] : null;
-                var newLen = currentDepTree.push(currentDeps);
-                // If we've already created this Node, don't instantiate another
-                // TODO: Allow recreation
-                if (cache[name]) {
-                    return cache[name];
+                else if (config[0].id) {
+                    symbolTag += '-' + config[0].id;
                 }
-                var node = new Task();
-                if (deps) {
-                    if (!(deps instanceof Array)) {
-                        deps = [deps];
-                    }
-                    var upstream = callSomething(currentDepTree[newLen - 1][name], deps);
-                    if (upstream.length === 1) {
-                        upstream = upstream[0];
-                    }
-                    else {
-                        upstream = rx_1.Observable.merge(upstream);
-                    }
-                    cache[name] = node.run(upstream);
-                }
-                else {
-                    cache[name] = node.run();
-                }
-                return cache[name];
-            });
-        }
-        callSomething(depTree, nodes);
-        // console.log(JSON.stringify(depTree));
-    }
-    Gustav.init = init;
-    function cacheOutput(name, observable) {
-        var outputStream = fs.createWriteStream('./data/' + name);
-        observable
-            .subscribe(function (datums) {
-            outputStream.write(datums);
-        });
-    }
-})(Gustav || (Gustav = {}));
-exports["default"] = Gustav;
+            }
+            var sym = Symbol(symbolTag);
+            _this.ggraph.nodes[sym] = {
+                type: type,
+                init: factory.apply(null, config)
+            };
+            return sym;
+        };
+    };
+    Gustav.prototype.init = function () {
+        this.ggraph.makeGraph();
+    };
+    Gustav.prototype.addDep = function (from, to) {
+        this.ggraph.addEdge(from, to);
+    };
+    Gustav.prototype.source = function (name, factory) { return this.register('source', name, factory); };
+    Gustav.prototype.transformer = function (name, factory) { return this.register('transformer', name, factory); };
+    Gustav.prototype.sink = function (name, factory) { return this.register('sink', name, factory); };
+    return Gustav;
+})();
+;
+// REVIEW: How to handle below:
+// let gustavs = {};
+// let getGustavs = (name:string) => {
+//   if (!gustavs[name]) {
+//     gustavs[name] = new Gustav();
+//   }
+//   return gustavs[name];
+// };
+exports.gustav = new Gustav();

@@ -1,29 +1,20 @@
-/// <reference path="../../index.ts" />
-/// <reference path="../../typings/tsd.d.ts" />
 'use strict';
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
+// You'll need to install bluebird, request and cheerio for this to work
 var index_1 = require('../../index');
-var rx_1 = require('rx');
+var helpers_1 = require('../../helpers');
+var Rx = require('@reactivex/rxjs');
+var Observable = Rx.Observable;
 var bluebird_1 = require('bluebird');
 var url = require('url');
 var r = require('request');
 var cheerio = require('cheerio');
 var request = bluebird_1.promisifyAll(r);
 var site = 'http://rkoutnik.com';
-var SiteSource = (function (_super) {
-    __extends(SiteSource, _super);
-    function SiteSource() {
-        _super.apply(this, arguments);
-    }
-    SiteSource.prototype.run = function () {
+var siteSource = index_1.gustav.source('siteSource', function (site) {
+    return function () {
         var nextLink;
         var visited = [];
-        function getURL(urlToScan) {
+        var getURL = function (urlToScan) {
             urlToScan = urlToScan.replace(/#.*/, '');
             var parsedURL = url.parse(urlToScan);
             if (!parsedURL.host) {
@@ -44,9 +35,9 @@ var SiteSource = (function (_super) {
                     url: urlToScan
                 });
             });
-        }
+        };
         getURL('/');
-        return rx_1.Observable.create(function (o) {
+        return new Observable(function (o) {
             nextLink = function (page) {
                 // If it's a link for us, fire off another request
                 page.links.filter(function (link) {
@@ -54,46 +45,23 @@ var SiteSource = (function (_super) {
                     return !parsed.host || parsed.host === 'rkoutnik.com';
                 })
                     .map(getURL);
-                o.onNext(page);
+                o.next(page);
             };
         });
     };
-    return SiteSource;
-})(index_1["default"].Source);
-var FindTLD = (function (_super) {
-    __extends(FindTLD, _super);
-    function FindTLD() {
-        _super.apply(this, arguments);
-    }
-    FindTLD.prototype.run = function (iO) {
+});
+var findTLD = index_1.gustav.transformer('findTLD', function () {
+    return function (iO) {
         var seen = [];
         return iO
-            .flatMap(function (page) { return rx_1.Observable.from(page.links, function (x) { return url.parse(x); }); })
+            .flatMap(function (page) { return Observable.from(page.links.map(function (x) { return url.parse(x); })); })
             .map(function (parsedURL) { return parsedURL.host || 'rkoutnik.com'; })
             .filter(function (str) { return seen.indexOf(str) === -1; })
             .do(function (str) { return seen.push(str); });
     };
-    FindTLD.dependencies = SiteSource;
-    return FindTLD;
-})(index_1["default"].Transformer);
-var LogSink = (function (_super) {
-    __extends(LogSink, _super);
-    function LogSink() {
-        _super.apply(this, arguments);
-    }
-    LogSink.prototype.run = function (iO) {
-        iO.subscribe(
-        // noop,
-        // noop,
-        function (obj) { return console.log('result', url.format(obj)); }, function (err) { return console.log(err); }, function () { return console.log('done'); });
-    };
-    LogSink.dependencies = FindTLD;
-    return LogSink;
-})(index_1["default"].Sink);
-function noop() {
-    var items = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        items[_i - 0] = arguments[_i];
-    }
-}
-index_1["default"].init(LogSink);
+})();
+var getRkoutnik = siteSource(site);
+var out = helpers_1.consoleSink('URL:');
+index_1.gustav.addDep(findTLD, getRkoutnik);
+index_1.gustav.addDep(out, findTLD);
+index_1.gustav.init();

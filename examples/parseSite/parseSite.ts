@@ -1,11 +1,12 @@
-/// <reference path="../../index.ts" />
-/// <reference path="../../typings/tsd.d.ts" />
-
 'use strict';
 
-import Gustav from '../../index';
+// You'll need to install bluebird, request and cheerio for this to work
 
-import {Observable} from 'rx';
+import {gustav} from '../../index';
+import {consoleSink} from '../../helpers';
+
+let Rx = require('@reactivex/rxjs');
+let Observable = Rx.Observable;
 import {promisifyAll} from 'bluebird';
 import * as url from 'url';
 import * as r from 'request';
@@ -14,11 +15,11 @@ import * as cheerio from 'cheerio';
 let request = promisifyAll(r);
 let site = 'http://rkoutnik.com';
 
-class SiteSource extends Gustav.Source {
-  run() {
+let siteSource = gustav.source('siteSource', (site: string) => {
+  return () => {
     let nextLink;
     let visited = [];
-    function getURL(urlToScan) {
+    let getURL = (urlToScan) => {
       urlToScan = urlToScan.replace(/#.*/, '');
       let parsedURL = url.parse(urlToScan);
       if (!parsedURL.host) {
@@ -41,8 +42,10 @@ class SiteSource extends Gustav.Source {
         });
       });
     }
+
     getURL('/');
-    return Observable.create((o) => {
+
+    return new Observable((o) => {
       nextLink = (page) => {
         // If it's a link for us, fire off another request
         page.links.filter(link => {
@@ -50,35 +53,27 @@ class SiteSource extends Gustav.Source {
           return !parsed.host || parsed.host === 'rkoutnik.com';
         })
         .map(getURL);
-        o.onNext(page);
+        o.next(page);
       };
     });
-  }
-}
+  };
+});
 
-class FindTLD extends Gustav.Transformer {
-  static dependencies = SiteSource;
-  run (iO: Observable<any>) {
+let findTLD = gustav.transformer('findTLD', () => {
+  return (iO) => {
     let seen = [];
     return iO
-    .flatMap(page => Observable.from(page.links, x => url.parse(x)))
-    .map(parsedURL => parsedURL.host || 'rkoutnik.com')
-    .filter(str => seen.indexOf(str) === -1)
-    .do(str => seen.push(str));
+      .flatMap(page => Observable.from(page.links.map(x => url.parse(x))))
+      .map(parsedURL => parsedURL.host || 'rkoutnik.com')
+      .filter(str => seen.indexOf(str) === -1)
+      .do(str => seen.push(str));
   }
-}
+})();
 
-class LogSink extends Gustav.Sink {
-  static dependencies = FindTLD;
-  run(iO: Observable<any>) {
-    iO.subscribe(
-      // noop,
-      obj => console.log('result', url.format(obj)),
-      err => console.log(err),
-      () => console.log('done')
-    );
-  }
-}
-function noop(...items:Array<any>) {}
+let getRkoutnik = siteSource(site);
+let out = consoleSink('URL:');
 
-Gustav.init(LogSink);
+gustav.addDep(findTLD, getRkoutnik);
+gustav.addDep(out, findTLD);
+
+gustav.init();

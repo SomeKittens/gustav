@@ -1,36 +1,26 @@
 {
-  "name": "gustav",
-  "version": "0.0.2",
-  "description": "Realtime data processing",
+  "name": "gustav-next",
+  "version": "0.1.0",
+  "description": "Framework for building realtime processing flows in Node.js",
   "main": "index.js",
   "scripts": {
     "start": "tsc --module commonjs --watch scratch.ts",
-    "test": "mocha -R nyan",
-    "coverage": "istanbul cover _mocha -- -u exports -R nyan test/tests.js",
-    "define": "tsc --declaration *.ts --module commonjs"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "Randall Koutnik",
   "typescript": {
     "definition": "index.d.ts"
   },
   "bugs": {
     "url": "https://github.com/SomeKittens/gustav/issues"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git@github.com:SomeKittens/gustav.git"
   },
-  "license": "MIT",
-  "author": "Randall Koutnik",
   "dependencies": {
-    "bluebird": "^2.9.33",
-    "cheerio": "^0.19.0",
-    "pg": "^4.4.0",
-    "request": "^2.60.0",
-    "rx": "^2.5.3",
+    "@reactivex/rxjs": "0.0.0-prealpha.3",
     "tail": "^0.4.0"
-  },
-  "devDependencies": {
-    "chai": "~2.1.1",
-    "istanbul": "^0.3.17"
   }
 }

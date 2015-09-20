@@ -1,92 +1,51 @@
-/// <reference path="typings/tsd.d.ts" />
-/// <reference path="index.ts" />
-
 'use strict';
 
-import Gustav from './index';
-import * as fs from 'fs';
-import {Observable} from 'rx';
+import {gustav} from './index';
+import {appendFileSync, writeFileSync} from 'fs';
+let Rx = require('@reactivex/rxjs');
+let Observable = Rx.Observable;
 
+// TODO: .d.ts for tail
 // import {Tail} from 'tail';
 var Tail = require('tail').Tail;
 
-// Reads lines from a file live & emits them
-// https://github.com/lucagrulla/node-tail
-export class FileSource extends Gustav.Source {
-  constructor(
-    public filename: string,
-    public lineSeparator = '\n',
-    public watchOptions = {},
-    public fromStart = false
-  ) {
-    super();
-  }
-  run() {
+export let fileSource = gustav.source('fileSource', (config) => {
+  if (typeof config === 'string') { config = { filename: config }; }
+  let tailConfig = {
+    filename: config.filename,
+    lineSeparator: config.lineSeparator || '\n',
+    watchOptions: config.watchOptions || {},
+    fromStart: config.fromStart || false
+  };
+  return () => {
     let logTail = new Tail(
-      this.filename,
-      this.lineSeparator,
-      this.watchOptions,
-      this.fromStart
+      tailConfig.filename,
+      tailConfig.lineSeparator,
+      tailConfig.watchOptions,
+      tailConfig.fromStart
     );
-    return Observable.create(o => {
-      logTail.on('line', (line) => o.onNext(line));
-      logTail.on('err', (err) => o.onError(err));
-      logTail.on('end', () => o.onCompleted());
-    }).publish().refCount();
-  }
-}
-
-// Logs every event to the console.
-export class LogSink extends Gustav.Sink {
-  constructor(public name='Gustav') {
-    super();
-    console.log(this.name);
-  }
-  run(iO) {
-    iO.forEach(
-      // Regular
-      datum => console.log(this.name, datum),
-      // Errors
-      err => console.error(this.name, err),
-      // Done
-      () => console.log(this.name, 'Finished')
-    );
-  }
-}
-
-// Untested, no clue if worky.  TODO
-import pg = require('pg');
-import bluebird = require('bluebird');
-
-bluebird.promisifyAll(pg);
-bluebird.promisifyAll(pg.Client.prototype);
-
-export class PostgresSource extends Gustav.Source {
-  exec: Function;
-  constructor(public config:any) {
-    super();
-    // connect to pg
-    this.exec = fn => {
-      let close;
-      return pg.connectAsync(this.config.connString).spread(function(client, _close) {
-        close = _close;
-        return fn(client);
-      }).finally(function() {
-        if (close) {
-          close();
-          pg.end();
-        }
-      });
-    };
-  }
-  run () {
-    // Get data from something
-    return Observable.create(o => {
-      this.exec((db) => db.queryAsync(this.config.query))
-      .then((data) => {
-        data.rows.forEach(datum => o.onNext(datum));
-        o.onCompleted();
-      });
+    return new Observable(o => {
+      logTail.on('line', (line) => o.next(line));
+      logTail.on('err', (err) => o.error(err));
+      logTail.on('end', () => o.complete());
     });
+  };
+});
+
+export let consoleSink = gustav.sink('consoleSink', (prefix='Gustav:') => {
+  return (iO) => {
+    iO.forEach(console.log.bind(console, prefix), console.log.bind(console, prefix), console.log.bind(console, prefix));
+  };
+});
+
+export let fileSink = gustav.sink('FileSink', (filename) => {
+  return (iO) => {
+    // Clear the file
+    writeFileSync(filename, '');
+    iO.forEach(
+      arr => arr.forEach(title => {appendFileSync(filename, title + '\n')}),
+      err => console.log('err', err),
+      () => {console.log('Finished');appendFileSync(filename, '**done**\n')}
+    )
   }
-}
+})

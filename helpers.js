@@ -1,102 +1,40 @@
-/// <reference path="typings/tsd.d.ts" />
-/// <reference path="index.ts" />
 'use strict';
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var index_1 = require('./index');
-var rx_1 = require('rx');
+var fs_1 = require('fs');
+var Rx = require('@reactivex/rxjs');
+var Observable = Rx.Observable;
+// TODO: .d.ts for tail
 // import {Tail} from 'tail';
 var Tail = require('tail').Tail;
-// Reads lines from a file live & emits them
-// https://github.com/lucagrulla/node-tail
-var FileSource = (function (_super) {
-    __extends(FileSource, _super);
-    function FileSource(filename, lineSeparator, watchOptions, fromStart) {
-        if (lineSeparator === void 0) { lineSeparator = '\n'; }
-        if (watchOptions === void 0) { watchOptions = {}; }
-        if (fromStart === void 0) { fromStart = false; }
-        _super.call(this);
-        this.filename = filename;
-        this.lineSeparator = lineSeparator;
-        this.watchOptions = watchOptions;
-        this.fromStart = fromStart;
+exports.fileSource = index_1.gustav.source('fileSource', function (config) {
+    if (typeof config === 'string') {
+        config = { filename: config };
     }
-    FileSource.prototype.run = function () {
-        var logTail = new Tail(this.filename, this.lineSeparator, this.watchOptions, this.fromStart);
-        return rx_1.Observable.create(function (o) {
-            logTail.on('line', function (line) { return o.onNext(line); });
-            logTail.on('err', function (err) { return o.onError(err); });
-            logTail.on('end', function () { return o.onCompleted(); });
-        }).publish().refCount();
+    var tailConfig = {
+        filename: config.filename,
+        lineSeparator: config.lineSeparator || '\n',
+        watchOptions: config.watchOptions || {},
+        fromStart: config.fromStart || false
     };
-    return FileSource;
-})(index_1.default.Source);
-exports.FileSource = FileSource;
-// Logs every event to the console.
-var LogSink = (function (_super) {
-    __extends(LogSink, _super);
-    function LogSink(name) {
-        if (name === void 0) { name = 'Gustav'; }
-        _super.call(this);
-        this.name = name;
-        console.log(this.name);
-    }
-    LogSink.prototype.run = function (iO) {
-        var _this = this;
-        iO.forEach(
-        // Regular
-        // Regular
-        function (datum) { return console.log(_this.name, datum); }, 
-        // Errors
-        // Errors
-        function (err) { return console.error(_this.name, err); }, 
-        // Done
-        // Done
-        function () { return console.log(_this.name, 'Finished'); });
-    };
-    return LogSink;
-})(index_1.default.Sink);
-exports.LogSink = LogSink;
-// Untested, no clue if worky.  TODO
-var pg = require('pg');
-var bluebird = require('bluebird');
-bluebird.promisifyAll(pg);
-bluebird.promisifyAll(pg.Client.prototype);
-var PostgresSource = (function (_super) {
-    __extends(PostgresSource, _super);
-    function PostgresSource(config) {
-        var _this = this;
-        _super.call(this);
-        this.config = config;
-        // connect to pg
-        this.exec = function (fn) {
-            var close;
-            return pg.connectAsync(_this.config.connString).spread(function (client, _close) {
-                close = _close;
-                return fn(client);
-            }).finally(function () {
-                if (close) {
-                    close();
-                    pg.end();
-                }
-            });
-        };
-    }
-    PostgresSource.prototype.run = function () {
-        var _this = this;
-        // Get data from something
-        return rx_1.Observable.create(function (o) {
-            _this.exec(function (db) { return db.queryAsync(_this.config.query); })
-                .then(function (data) {
-                data.rows.forEach(function (datum) { return o.onNext(datum); });
-                o.onCompleted();
-            });
+    return function () {
+        var logTail = new Tail(tailConfig.filename, tailConfig.lineSeparator, tailConfig.watchOptions, tailConfig.fromStart);
+        return new Observable(function (o) {
+            logTail.on('line', function (line) { return o.next(line); });
+            logTail.on('err', function (err) { return o.error(err); });
+            logTail.on('end', function () { return o.complete(); });
         });
     };
-    return PostgresSource;
-})(index_1.default.Source);
-exports.PostgresSource = PostgresSource;
+});
+exports.consoleSink = index_1.gustav.sink('consoleSink', function (prefix) {
+    if (prefix === void 0) { prefix = 'Gustav:'; }
+    return function (iO) {
+        iO.forEach(console.log.bind(console, prefix), console.log.bind(console, prefix), console.log.bind(console, prefix));
+    };
+});
+exports.fileSink = index_1.gustav.sink('FileSink', function (filename) {
+    return function (iO) {
+        // Clear the file
+        fs_1.writeFileSync(filename, '');
+        iO.forEach(function (arr) { return arr.forEach(function (title) { fs_1.appendFileSync(filename, title + '\n'); }); }, function (err) { return console.log('err', err); }, function () { console.log('Finished'); fs_1.appendFileSync(filename, '**done**\n'); });
+    };
+});
