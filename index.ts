@@ -34,6 +34,11 @@ class Gustav {
     // TODO: Return some sort of object so this can be chained
     // let splitText = SplitText()
     // .addDep(fetchPageText);
+
+    // Names must be unique
+    if (this.registeredNodes[type].indexOf(name)) {
+      throw new Error(name + ' already registered');
+    }
     this.registeredNodes[type].push(name);
 
     return (...config) => {

@@ -15,10 +15,14 @@ var Gustav = (function () {
     // TODO: new type of registration that's just a singleton
     // Just calls NodeFactory and returns the symbol
     Gustav.prototype.register = function (type, name, factory) {
-        var _this = this;
         // TODO: Return some sort of object so this can be chained
         // let splitText = SplitText()
         // .addDep(fetchPageText);
+        var _this = this;
+        // Names must be unique
+        if (this.registeredNodes[type].indexOf(name)) {
+            throw new Error(name + ' already registered');
+        }
         this.registeredNodes[type].push(name);
         return function () {
             var config = [];
