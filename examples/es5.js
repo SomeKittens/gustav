@@ -1,6 +1,6 @@
 'use strict';
 
-var gustav = require('./index').gustav;
+var gustav = require('../index').gustav;
 var helpers = require('./classes');
 
 // defaults to two
