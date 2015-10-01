@@ -1,5 +1,5 @@
 /// <reference path="typings/tsd.d.ts" />
-/// <reference path="../../../.nvm/versions/node/v4.0.0/lib/node_modules/typescript/lib/lib.es6.d.ts" />
+/// <reference path="Symbol.d.ts" />
 
 'use strict';
 
