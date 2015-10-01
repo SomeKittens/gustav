@@ -2,7 +2,7 @@
   "name": "gustav",
   "version": "0.2.2",
   "description": "Framework for building realtime processing flows in Node.js",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "tsc --module commonjs --watch scratch.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
