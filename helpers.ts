@@ -47,5 +47,11 @@ export let fileSink = gustav.sink('FileSink', (filename) => {
       err => console.log('err', err),
       () => {console.log('Finished');appendFileSync(filename, '**done**\n')}
     )
-  }
-})
+  };
+});
+
+export let nullSink = gustav.sink('nullSink', () => {
+  return (iO) => {
+    iO.subscribe(() => {}, (err) => {console.log('err', err)}, () => {});
+  };
+});
