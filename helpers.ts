@@ -13,7 +13,7 @@ export let fileSource = gustav.source('fileSource', (config) => {
   if (typeof config === 'string') { config = { filename: config }; }
   let tailConfig = {
     filename: config.filename,
-    lineSeparator: config.lineSeparator || '\n',
+    lineSeparator: config.lineSeparator || /[\r]{0,1}\n/,
     watchOptions: config.watchOptions || {},
     fromStart: config.fromStart || false
   };
