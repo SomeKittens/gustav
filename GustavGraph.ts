@@ -1,5 +1,6 @@
 'use strict';
 
+import {StatScanner} from './StatScanner';
 let Rx = require('@reactivex/rxjs');
 
 interface Edge {
@@ -61,7 +62,13 @@ class GustavGraph {
       }
       // All loaders do not have deps
       if (this.nodes[nodeName].type === 'source') {
-        return this.nodes[nodeName].init();
+        let ss = new StatScanner(nodeName, 1000);
+        let called = 0;
+        setInterval(() => console.log(nodeName, 'called', called), 1000);
+        return this.nodes[nodeName].init().do(() => {
+          called++;
+          ss.add();
+        });
       }
 
       // TODO: try/catch here and throw relevant error
@@ -69,19 +76,25 @@ class GustavGraph {
       // gustav.addDep(consoleSink(), logParser());
       // gustav.addDep(logParser(), logGenerator())
       // (Two different logParsers)
-      // console.log('bananas', nodeName);
       let nextNode = this.transformEdges[nodeName].map(resolveDeps);
-      // console.log('asdf', nodeName, nextNode);
       if (nextNode.length) {
         nextNode = Rx.Observable.merge.apply(null, nextNode);
       }
 
       let result = cache[nodeName] = this.nodes[nodeName].init(nextNode);
-      return result;
+
+      let ss = new StatScanner(nodeName, 1000);
+      let called = 0;
+      setInterval(() => console.log(nodeName, 'called', called), 1000);
+      return result.do(() => {
+        called++;
+        ss.add();
+      });
     };
     // All sinks are terminal
     // For each sinkEdge, find the next item
     this.sinkEdges.forEach(edge => {
+      console.log(edge);
       seen = [];
       var x = resolveDeps(edge.to);
       this.nodes[edge.from].init(x);

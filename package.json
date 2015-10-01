@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@reactivex/rxjs": "0.0.0-prealpha.3",
+    "double-ended-queue": "^0.9.7",
     "tail": "^0.4.0"
   }
 }
