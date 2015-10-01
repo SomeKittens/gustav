@@ -11,10 +11,22 @@ interface NodeFactory {
   (...config:any[]): symbol;
 }
 
+interface NodeCollection {
+  source: string[];
+  transformer: string[];
+  sink: string[];
+}
+
 class Gustav {
   ggraph: GustavGraph;
+  registeredNodes: NodeCollection;
   constructor() {
     this.ggraph = new GustavGraph();
+    this.registeredNodes = {
+      source: [],
+      transformer: [],
+      sink: []
+    };
   }
   // TODO: new type of registration that's just a singleton
   // Just calls NodeFactory and returns the symbol
@@ -22,6 +34,8 @@ class Gustav {
     // TODO: Return some sort of object so this can be chained
     // let splitText = SplitText()
     // .addDep(fetchPageText);
+    this.registeredNodes[type].push(name);
+
     return (...config) => {
       // Attempt to detect config to make symbol tag more descriptive
       let symbolTag = name;

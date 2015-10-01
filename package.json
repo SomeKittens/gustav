@@ -1,5 +1,5 @@
 {
-  "name": "gustav-next",
+  "name": "gustav",
   "version": "0.2.1",
   "description": "Framework for building realtime processing flows in Node.js",
   "main": "index.js",

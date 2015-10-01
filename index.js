@@ -6,6 +6,11 @@ var GustavGraph_1 = require('./GustavGraph');
 var Gustav = (function () {
     function Gustav() {
         this.ggraph = new GustavGraph_1.default();
+        this.registeredNodes = {
+            source: [],
+            transformer: [],
+            sink: []
+        };
     }
     // TODO: new type of registration that's just a singleton
     // Just calls NodeFactory and returns the symbol
@@ -14,6 +19,7 @@ var Gustav = (function () {
         // TODO: Return some sort of object so this can be chained
         // let splitText = SplitText()
         // .addDep(fetchPageText);
+        this.registeredNodes[type].push(name);
         return function () {
             var config = [];
             for (var _i = 0; _i < arguments.length; _i++) {
