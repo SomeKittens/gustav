@@ -12,7 +12,7 @@ exports.fileSource = index_1.gustav.source('fileSource', function (config) {
     }
     var tailConfig = {
         filename: config.filename,
-        lineSeparator: config.lineSeparator || '\n',
+        lineSeparator: config.lineSeparator || /[\r]{0,1}\n/,
         watchOptions: config.watchOptions || {},
         fromStart: config.fromStart || false
     };
@@ -36,5 +36,10 @@ exports.fileSink = index_1.gustav.sink('FileSink', function (filename) {
         // Clear the file
         fs_1.writeFileSync(filename, '');
         iO.forEach(function (arr) { return arr.forEach(function (title) { fs_1.appendFileSync(filename, title + '\n'); }); }, function (err) { return console.log('err', err); }, function () { console.log('Finished'); fs_1.appendFileSync(filename, '**done**\n'); });
+    };
+});
+exports.nullSink = index_1.gustav.sink('nullSink', function () {
+    return function (iO) {
+        iO.subscribe(function () { }, function (err) { console.log('err', err); }, function () { });
     };
 });
