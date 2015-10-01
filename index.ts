@@ -36,7 +36,7 @@ class Gustav {
     // .addDep(fetchPageText);
 
     // Names must be unique
-    if (this.registeredNodes[type].indexOf(name)) {
+    if (this.registeredNodes[type].indexOf(name) > -1) {
       throw new Error(name + ' already registered');
     }
     this.registeredNodes[type].push(name);
