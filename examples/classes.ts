@@ -1,6 +1,7 @@
 'use strict';
 
-import {gustav} from '../index';
+// Require so we can point to the compiled version in dist
+let gustav = require('../dist/index').gustav;
 let Rx = require('@reactivex/rxjs');
 let Observable = Rx.Observable;
 
