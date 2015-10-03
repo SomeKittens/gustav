@@ -60,7 +60,43 @@ class Gustav {
     };
   }
   init () {
-    this.ggraph.makeGraph();
+    let cache = {};
+    let seen = [];
+
+    let resolveDeps = (nodeName:symbol) => {
+      if (seen.indexOf(nodeName) > -1) {
+        throw new Error('Loop detected in dependency graph');
+      }
+      seen.push(nodeName);
+
+      if (cache[nodeName]) {
+        return cache[nodeName];
+      }
+      // All loaders do not have deps
+      if (this.ggraph.nodes[nodeName].type === 'source') {
+        return this.ggraph.nodes[nodeName].init();
+      }
+
+      // TODO: try/catch here and throw relevant error
+      // Will break with
+      // gustav.addDep(consoleSink(), logParser());
+      // gustav.addDep(logParser(), logGenerator())
+      // (Two different logParsers)
+      let nextNode = this.ggraph.transformEdges[nodeName].map(resolveDeps);
+      if (nextNode.length) {
+        nextNode = Rx.Observable.merge.apply(null, nextNode);
+      }
+
+      let result = cache[nodeName] = this.ggraph.nodes[nodeName].init(nextNode);
+      return result;
+    };
+    // All sinks are terminal
+    // For each sinkEdge, find the next item
+    this.ggraph.sinkEdges.forEach(edge => {
+      seen = [];
+      var x = resolveDeps(edge.to);
+      this.ggraph.nodes[edge.from].init(x);
+    });
   }
   addDep (from: symbol, to: symbol) {
     this.ggraph.addEdge(from, to);

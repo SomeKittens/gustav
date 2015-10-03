@@ -8,8 +8,8 @@ interface Edge {
 }
 
 class GustavGraph {
-  private sinkEdges: Edge[];
-  private transformEdges: Object;
+  sinkEdges: Edge[];
+  transformEdges: Object;
   nodes: Object;
   constructor() {
     this.sinkEdges = [];
@@ -45,47 +45,6 @@ class GustavGraph {
       }
       this.transformEdges[from].push(to);
     }
-  }
-  makeGraph() {
-    let cache = {};
-    let seen = [];
-
-    let resolveDeps = (nodeName:symbol) => {
-      if (seen.indexOf(nodeName) > -1) {
-        throw new Error('Loop detected in dependency graph');
-      }
-      seen.push(nodeName);
-
-      if (cache[nodeName]) {
-        return cache[nodeName];
-      }
-      // All loaders do not have deps
-      if (this.nodes[nodeName].type === 'source') {
-        return this.nodes[nodeName].init();
-      }
-
-      // TODO: try/catch here and throw relevant error
-      // Will break with
-      // gustav.addDep(consoleSink(), logParser());
-      // gustav.addDep(logParser(), logGenerator())
-      // (Two different logParsers)
-      // console.log('bananas', nodeName);
-      let nextNode = this.transformEdges[nodeName].map(resolveDeps);
-      // console.log('asdf', nodeName, nextNode);
-      if (nextNode.length) {
-        nextNode = Rx.Observable.merge.apply(null, nextNode);
-      }
-
-      let result = cache[nodeName] = this.nodes[nodeName].init(nextNode);
-      return result;
-    };
-    // All sinks are terminal
-    // For each sinkEdge, find the next item
-    this.sinkEdges.forEach(edge => {
-      seen = [];
-      var x = resolveDeps(edge.to);
-      this.nodes[edge.from].init(x);
-    });
   }
 }
 
