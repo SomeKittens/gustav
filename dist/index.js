@@ -48,7 +48,40 @@ var Gustav = (function () {
         };
     };
     Gustav.prototype.init = function () {
-        this.ggraph.makeGraph();
+        var _this = this;
+        var cache = {};
+        var seen = [];
+        var resolveDeps = function (nodeName) {
+            if (seen.indexOf(nodeName) > -1) {
+                throw new Error('Loop detected in dependency graph');
+            }
+            seen.push(nodeName);
+            if (cache[nodeName]) {
+                return cache[nodeName];
+            }
+            // All loaders do not have deps
+            if (_this.ggraph.nodes[nodeName].type === 'source') {
+                return _this.ggraph.nodes[nodeName].init();
+            }
+            // TODO: try/catch here and throw relevant error
+            // Will break with
+            // gustav.addDep(consoleSink(), logParser());
+            // gustav.addDep(logParser(), logGenerator())
+            // (Two different logParsers)
+            var nextNode = _this.ggraph.transformEdges[nodeName].map(resolveDeps);
+            if (nextNode.length) {
+                nextNode = Rx.Observable.merge.apply(null, nextNode);
+            }
+            var result = cache[nodeName] = _this.ggraph.nodes[nodeName].init(nextNode);
+            return result;
+        };
+        // All sinks are terminal
+        // For each sinkEdge, find the next item
+        this.ggraph.sinkEdges.forEach(function (edge) {
+            seen = [];
+            var x = resolveDeps(edge.to);
+            _this.ggraph.nodes[edge.from].init(x);
+        });
     };
     Gustav.prototype.addDep = function (from, to) {
         this.ggraph.addEdge(from, to);
