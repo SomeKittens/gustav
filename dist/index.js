@@ -6,11 +6,7 @@ var GustavGraph_1 = require('./GustavGraph');
 var Gustav = (function () {
     function Gustav() {
         this.ggraph = new GustavGraph_1.default();
-        this.registeredNodes = {
-            source: [],
-            transformer: [],
-            sink: []
-        };
+        this.registeredNodes = [];
     }
     // TODO: new type of registration that's just a singleton
     // Just calls NodeFactory and returns the symbol
@@ -18,34 +14,49 @@ var Gustav = (function () {
         // TODO: Return some sort of object so this can be chained
         // let splitText = SplitText()
         // .addDep(fetchPageText);
-        var _this = this;
         // Names must be unique
-        if (this.registeredNodes[type].indexOf(name) > -1) {
+        var exists = this.registeredNodes.filter(function (x) { return x.name === name; });
+        if (exists.length) {
             throw new Error(name + ' already registered');
         }
-        this.registeredNodes[type].push(name);
-        return function () {
-            var config = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                config[_i - 0] = arguments[_i];
+        this.registeredNodes.push({
+            type: type,
+            name: name,
+            factory: factory
+        });
+        return this.makeNode.bind(this, name);
+    };
+    Gustav.prototype.makeNode = function (nodeName) {
+        var config = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            config[_i - 1] = arguments[_i];
+        }
+        var node = this.registeredNodes.filter(function (x) { return x.name === nodeName; })[0];
+        if (!node) {
+            throw new Error(nodeName + ' not registered');
+        }
+        // Attempt to detect config to make symbol tag more descriptive
+        var symbolTag = node.name;
+        if (config.length) {
+            if (!(config[0] instanceof Object)) {
+                symbolTag += '-' + config[0];
             }
-            // Attempt to detect config to make symbol tag more descriptive
-            var symbolTag = name;
-            if (config.length) {
-                if (!(config[0] instanceof Object)) {
-                    symbolTag += '-' + config[0];
-                }
-                else if (config[0].id) {
-                    symbolTag += '-' + config[0].id;
-                }
+            else if (config[0].id) {
+                symbolTag += '-' + config[0].id;
             }
-            var sym = Symbol(symbolTag);
-            _this.ggraph.nodes[sym] = {
-                type: type,
-                init: factory.apply(null, config)
-            };
-            return sym;
+        }
+        var sym = Symbol(symbolTag);
+        this.ggraph.nodes[sym] = {
+            type: node.type,
+            init: node.factory.apply(null, config)
         };
+        return sym;
+    };
+    Gustav.prototype.getNodeTypes = function () {
+        return this.registeredNodes.reduce(function (obj, node) {
+            obj[node.type].push(node.name);
+            return obj;
+        }, { source: [], transformer: [], sink: [] });
     };
     Gustav.prototype.init = function () {
         var _this = this;
