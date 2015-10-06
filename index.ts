@@ -17,16 +17,18 @@ interface NodeCollection {
   sink: string[];
 }
 
+interface RegisteredNode {
+  name: string;
+  type: string;
+  factory: Function;
+}
+
 class Gustav {
   ggraph: GustavGraph;
-  registeredNodes: NodeCollection;
+  registeredNodes: RegisteredNode[];
   constructor() {
     this.ggraph = new GustavGraph();
-    this.registeredNodes = {
-      source: [],
-      transformer: [],
-      sink: []
-    };
+    this.registeredNodes = [];
   }
   // TODO: new type of registration that's just a singleton
   // Just calls NodeFactory and returns the symbol
@@ -36,28 +38,46 @@ class Gustav {
     // .addDep(fetchPageText);
 
     // Names must be unique
-    if (this.registeredNodes[type].indexOf(name) > -1) {
+    const exists = this.registeredNodes.filter((x) => x.name === name);
+    if (exists.length) {
       throw new Error(name + ' already registered');
     }
-    this.registeredNodes[type].push(name);
+    this.registeredNodes.push({
+      type,
+      name,
+      factory
+    });
 
-    return (...config) => {
-      // Attempt to detect config to make symbol tag more descriptive
-      let symbolTag = name;
-      if (config.length) {
-        if(!(config[0] instanceof Object)) {
-          symbolTag += '-' + config[0];
-        } else if (config[0].id) {
-          symbolTag += '-' + config[0].id;
-        }
+    return this.makeNode.bind(this, name);
+  }
+  makeNode (nodeName:string, ...config) {
+    var node = this.registeredNodes.filter((x) => x.name === nodeName)[0];
+
+    if (!node) {
+      throw new Error(nodeName + ' not registered');
+    }
+
+    // Attempt to detect config to make symbol tag more descriptive
+    let symbolTag = node.name;
+    if (config.length) {
+      if(!(config[0] instanceof Object)) {
+        symbolTag += '-' + config[0];
+      } else if (config[0].id) {
+        symbolTag += '-' + config[0].id;
       }
-      let sym = Symbol(symbolTag);
-      this.ggraph.nodes[sym] = {
-        type,
-        init: factory.apply(null, config)
-      };
-      return sym;
+    }
+    let sym = Symbol(symbolTag);
+    this.ggraph.nodes[sym] = {
+      type: node.type,
+      init: node.factory.apply(null, config)
     };
+    return sym;
+  }
+  getNodeTypes ():NodeCollection {
+    return this.registeredNodes.reduce((obj, node) => {
+      obj[node.type].push(node.name);
+      return obj;
+    }, {source: [], transformer: [], sink: []});
   }
   init () {
     let cache = {};
@@ -101,9 +121,9 @@ class Gustav {
   addDep (from: symbol, to: symbol) {
     this.ggraph.addEdge(from, to);
   }
-  source(name: string, factory) { return this.register('source', name, factory)}
-  transformer(name: string, factory) { return this.register('transformer', name, factory)}
-  sink(name: string, factory) { return this.register('sink', name, factory)}
+  source(name: string, factory: Function) { return this.register('source', name, factory)}
+  transformer(name: string, factory: Function) { return this.register('transformer', name, factory)}
+  sink(name: string, factory: Function) { return this.register('sink', name, factory)}
 };
 
 // REVIEW: How to handle below:
