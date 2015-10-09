@@ -24,8 +24,10 @@ interface RegisteredNode {
 
 class Gustav {
   registeredNodes: RegisteredNode[];
+  workflows: any;
   constructor() {
     this.registeredNodes = [];
+    this.workflows = {};
   }
   // TODO: new type of registration that's just a singleton
   // Just calls NodeFactory and returns the symbol
@@ -71,7 +73,15 @@ class Gustav {
     return sym;
   }
   makeWorkflow (config:NodeDef[]) {
-    return new Workflow(config);
+    let wf = new Workflow(config);
+    this.workflows[wf.guid] = wf;
+    return wf;
+  }
+  start (guid:string) {
+    this.workflows[guid].start();
+  }
+  stop (guid:string) {
+    this.workflows[guid].stop();
   }
   getNodeTypes ():NodeCollection {
     return this.registeredNodes.reduce((obj, node) => {
@@ -83,16 +93,5 @@ class Gustav {
   transformer(name: string, factory: Function) { return this.register('transformer', name, factory)}
   sink(name: string, factory: Function) { return this.register('sink', name, factory)}
 };
-
-// REVIEW: How to handle below:
-
-// let gustavs = {};
-
-// let getGustavs = (name:string) => {
-//   if (!gustavs[name]) {
-//     gustavs[name] = new Gustav();
-//   }
-//   return gustavs[name];
-// };
 
 export var gustav = new Gustav();
