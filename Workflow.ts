@@ -75,10 +75,11 @@ export class Workflow {
         nextNode = Rx.Observable.merge.apply(null, nextNode);
       }
 
-      let result = cache[nodeName] = this.ggraph.nodes[nodeName].init(nextNode);
+      let result = this.ggraph.nodes[nodeName].init(nextNode);
       if (nodeName === finalNode) {
-        return result.publish();
+        result = result.publish();
       }
+      cache[nodeName] = result;
       return result;
     };
     // All sinks are terminal
