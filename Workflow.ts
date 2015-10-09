@@ -11,7 +11,7 @@ export interface NodeDef {
   name: string;
   type?: string; // probably not needed
   config?: any;
-  dataFrom: number;
+  dataFrom: number[];
   id: number;
 }
 
@@ -22,7 +22,6 @@ export class Workflow {
   listeners: NodeDef[];
   private unsubs: any;
   constructor(public nodeDefs: NodeDef[]) {
-    this.isStarted = false;
     this.guid = guid.new();
     this.listeners = [];
     this.init();
@@ -57,7 +56,7 @@ export class Workflow {
     let cache = {};
     let seen = [];
 
-    let resolveDeps = (nodeName:symbol) => {
+    let resolveDeps = (nodeName:symbol, finalNode:symbol) => {
       if (seen.indexOf(nodeName) > -1) {
         throw new Error('Loop detected in dependency graph');
       }
@@ -66,28 +65,36 @@ export class Workflow {
       if (cache[nodeName]) {
         return cache[nodeName];
       }
-      // All loaders do not have deps
+      // Base case: All sources do not have deps
       if (this.ggraph.nodes[nodeName].type === 'source') {
         return this.ggraph.nodes[nodeName].init();
       }
 
-      let nextNode = this.ggraph.transformEdges[nodeName].map(resolveDeps);
+      let nextNode = this.ggraph.transformEdges[nodeName].map(dep => resolveDeps(dep, finalNode));
       if (nextNode.length) {
         nextNode = Rx.Observable.merge.apply(null, nextNode);
       }
 
       let result = cache[nodeName] = this.ggraph.nodes[nodeName].init(nextNode);
+      if (nodeName === finalNode) {
+        return result.publish();
+      }
       return result;
     };
     // All sinks are terminal
     // For each sinkEdge, find the next item
     this.ggraph.sinkEdges.forEach(edge => {
       seen = [];
-      var x = resolveDeps(edge.to);
-      this.ggraph.nodes[edge.from].init(x);
+      let penultimateNode = resolveDeps(edge.to, edge.to);
+      this.ggraph.nodes[edge.from].init(penultimateNode);
+      let subscription = penultimateNode.connect();
+      this.unsubs.push(subscription);
     });
   }
-  // TODO:
+  stop() {
+    this.unsubs.forEach(sub => sub.unsubscribe());
+    this.init();
+  }
   // Adds a stealth sink that allows us to listen in on the workflow output
   addListener (def:NodeDef) {
     if (this.isStarted) {
