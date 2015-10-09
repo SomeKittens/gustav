@@ -2,6 +2,7 @@ node_modules/*
 typings/*
 notes
 npm-debug.log
+dist/*
 
 # Used in examples
 httplogs

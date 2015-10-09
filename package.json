@@ -4,7 +4,9 @@
   "description": "Framework for building realtime processing flows in Node.js",
   "main": "dist/index.js",
   "scripts": {
-    "start": "tsc --module commonjs --watch scratch.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Randall Koutnik",
