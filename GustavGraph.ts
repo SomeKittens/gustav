@@ -1,13 +1,11 @@
 'use strict';
 
-let Rx = require('@reactivex/rxjs');
-
 interface Edge {
   from: symbol;
   to: symbol;
 }
 
-class GustavGraph {
+export class GustavGraph {
   sinkEdges: Edge[];
   transformEdges: Object;
   nodes: Object;
@@ -17,6 +15,8 @@ class GustavGraph {
     this.nodes = {};
   }
   addEdge(from: symbol, to: symbol) {
+    if (!from) { throw new Error('From node not defined'); }
+    if (!to) { throw new Error(/*to node defined, or */'To node not defined'/*that is the question*/); }
     if (!this.nodes[from]) {
       throw new Error('From node ' + from.toString() + ' not registered');
     }
@@ -27,7 +27,7 @@ class GustavGraph {
       throw new Error('Nodes cannot depend on themselves: ' + from.toString());
     }
     if (this.nodes[from].type === 'source') {
-      throw new Error('Loaders cannot have dependencies: ' + from.toString());
+      throw new Error('Sources cannot have dependencies: ' + from.toString());
     }
     if (this.nodes[to].type === 'sink') {
       throw new Error('Sinks cannot be depended on: ' /*they're sneaky like that*/ + to.toString());
@@ -47,5 +47,3 @@ class GustavGraph {
     }
   }
 }
-
-export default GustavGraph;

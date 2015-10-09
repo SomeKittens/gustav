@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@reactivex/rxjs": "0.0.0-prealpha.3",
+    "node-guid": "0.0.3",
     "tail": "^0.4.0"
   }
 }

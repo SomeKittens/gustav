@@ -3,9 +3,8 @@
 
 'use strict';
 
-let Rx = require('@reactivex/rxjs');
-
-import GustavGraph from './GustavGraph';
+import {GustavGraph} from './GustavGraph';
+import {Workflow, NodeDef} from './Workflow';
 
 interface NodeFactory {
   (...config:any[]): symbol;
@@ -24,10 +23,8 @@ interface RegisteredNode {
 }
 
 class Gustav {
-  ggraph: GustavGraph;
   registeredNodes: RegisteredNode[];
   constructor() {
-    this.ggraph = new GustavGraph();
     this.registeredNodes = [];
   }
   // TODO: new type of registration that's just a singleton
@@ -50,7 +47,7 @@ class Gustav {
 
     return this.makeNode.bind(this, name);
   }
-  makeNode (nodeName:string, ...config) {
+  makeNode (nodeName:string, graph: GustavGraph, ...config) {
     var node = this.registeredNodes.filter((x) => x.name === nodeName)[0];
 
     if (!node) {
@@ -67,59 +64,20 @@ class Gustav {
       }
     }
     let sym = Symbol(symbolTag);
-    this.ggraph.nodes[sym] = {
+    graph.nodes[sym] = {
       type: node.type,
       init: node.factory.apply(null, config)
     };
     return sym;
+  }
+  makeWorkflow (config:NodeDef[]) {
+    return new Workflow(config);
   }
   getNodeTypes ():NodeCollection {
     return this.registeredNodes.reduce((obj, node) => {
       obj[node.type].push(node.name);
       return obj;
     }, {source: [], transformer: [], sink: []});
-  }
-  init () {
-    let cache = {};
-    let seen = [];
-
-    let resolveDeps = (nodeName:symbol) => {
-      if (seen.indexOf(nodeName) > -1) {
-        throw new Error('Loop detected in dependency graph');
-      }
-      seen.push(nodeName);
-
-      if (cache[nodeName]) {
-        return cache[nodeName];
-      }
-      // All loaders do not have deps
-      if (this.ggraph.nodes[nodeName].type === 'source') {
-        return this.ggraph.nodes[nodeName].init();
-      }
-
-      // TODO: try/catch here and throw relevant error
-      // Will break with
-      // gustav.addDep(consoleSink(), logParser());
-      // gustav.addDep(logParser(), logGenerator())
-      // (Two different logParsers)
-      let nextNode = this.ggraph.transformEdges[nodeName].map(resolveDeps);
-      if (nextNode.length) {
-        nextNode = Rx.Observable.merge.apply(null, nextNode);
-      }
-
-      let result = cache[nodeName] = this.ggraph.nodes[nodeName].init(nextNode);
-      return result;
-    };
-    // All sinks are terminal
-    // For each sinkEdge, find the next item
-    this.ggraph.sinkEdges.forEach(edge => {
-      seen = [];
-      var x = resolveDeps(edge.to);
-      this.ggraph.nodes[edge.from].init(x);
-    });
-  }
-  addDep (from: symbol, to: symbol) {
-    this.ggraph.addEdge(from, to);
   }
   source(name: string, factory: Function) { return this.register('source', name, factory)}
   transformer(name: string, factory: Function) { return this.register('transformer', name, factory)}
