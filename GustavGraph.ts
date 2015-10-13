@@ -46,4 +46,13 @@ export class GustavGraph {
       this.transformEdges[from].push(to);
     }
   }
+  getSinkEdges() {
+    return this.sinkEdges.reduce((obj, edge) => {
+      if (!obj[edge.from]) {
+        obj[edge.from] = [];
+      }
+      obj[edge.from].push(edge.to);
+      return obj;
+    }, {});
+  }
 }

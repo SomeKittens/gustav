@@ -102,4 +102,8 @@ interface SymbolConstructor {
       */
     unscopables: symbol;
 }
+
+interface ObjectConstructor {
+  getOwnPropertySymbols(o: any): symbol[];
+}
 declare var Symbol: SymbolConstructor;

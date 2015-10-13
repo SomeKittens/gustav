@@ -84,13 +84,26 @@ export class Workflow {
     };
     // All sinks are terminal
     // For each sinkEdge, find the next item
-    this.ggraph.sinkEdges.forEach(edge => {
-      seen = [];
-      let penultimateNode = resolveDeps(edge.to, edge.to);
-      this.ggraph.nodes[edge.from].init(penultimateNode);
-      let subscription = penultimateNode.connect();
-      this.unsubs.push(subscription);
+    let sinkEdges = this.ggraph.getSinkEdges();
+    Object.getOwnPropertySymbols(sinkEdges).forEach(key => {
+      let deps = sinkEdges[key].map(penultimateNodeSym => {
+        // Reset loop checking
+        seen = [];
+
+        return resolveDeps(penultimateNodeSym, penultimateNodeSym);
+      });
+
+      let mergedDeps = Rx.Observable.merge.apply(null, deps);
+
+      this.ggraph.nodes[key].init(mergedDeps);
+
+      // Trigger the streams
+      deps.forEach(dep => {
+        let subscription = dep.connect();
+        this.unsubs.push(subscription);
+      });
     });
+
   }
   stop() {
     this.unsubs.forEach(sub => sub.unsubscribe());
