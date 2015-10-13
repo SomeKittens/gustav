@@ -68,7 +68,7 @@ class Gustav {
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
       type: node.type,
-      init: node.factory.apply(null, config)
+      init: node.factory.bind(null, ...config)
     };
     return sym;
   }
