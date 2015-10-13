@@ -49,7 +49,7 @@ class Gustav {
 
     return this.makeNode.bind(this, name);
   }
-  makeNode (nodeName:string, graph: GustavGraph, ...config) {
+  makeNode (nodeName:string, graph: GustavGraph, config) {
     var node = this.registeredNodes.filter((x) => x.name === nodeName)[0];
 
     if (!node) {
@@ -58,7 +58,7 @@ class Gustav {
 
     // Attempt to detect config to make symbol tag more descriptive
     let symbolTag = node.name;
-    if (config.length) {
+    if (config) {
       if(!(config[0] instanceof Object)) {
         symbolTag += '-' + config[0];
       } else if (config[0].id) {
@@ -68,7 +68,7 @@ class Gustav {
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
       type: node.type,
-      init: node.factory.bind(null, ...config)
+      init: config ? node.factory.bind(null, config) : node.factory
     };
     return sym;
   }
