@@ -11,8 +11,12 @@ export interface NodeDef {
   name: string;
   type?: string; // probably not needed
   config?: any;
-  dataFrom: number[];
+  dataFrom: number[] | number;
   id: number;
+}
+
+interface StrongNodeDef extends NodeDef {
+  dataFrom: number[];
 }
 
 export class Workflow {
@@ -20,10 +24,19 @@ export class Workflow {
   isStarted: boolean;
   guid: string;
   listeners: NodeDef[];
+  nodeDefs: StrongNodeDef[];
   private unsubs: any;
-  constructor(public nodeDefs: NodeDef[]) {
+  constructor(_nodeDefs: NodeDef[]) {
     this.guid = guid.new();
     this.listeners = [];
+
+    this.nodeDefs = _nodeDefs.map((def):StrongNodeDef => {
+      if (typeof def.dataFrom === 'number') {
+        def.dataFrom = [<number>def.dataFrom];
+      }
+      return <StrongNodeDef>def;
+    });
+
     this.init();
   }
   // Reset everything, destroying old references and saving memory
