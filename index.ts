@@ -33,9 +33,6 @@ class Gustav {
   // TODO: new type of registration that's just a singleton
   // Just calls NodeFactory and returns the symbol
   private register(type: string, name: string, factory): NodeFactory {
-    // TODO: Return some sort of object so this can be chained
-    // let splitText = SplitText()
-    // .addDep(fetchPageText);
 
     // Names must be unique
     const exists = this.registeredNodes.filter((x) => x.name === name);
