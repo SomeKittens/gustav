@@ -2,8 +2,7 @@
 
 import {gustav} from './index';
 import {appendFileSync, writeFileSync} from 'fs';
-let Rx = require('@reactivex/rxjs');
-let Observable = Rx.Observable;
+import {Observable} from '@reactivex/rxjs';
 
 // TODO: .d.ts for tail
 // import {Tail} from 'tail';

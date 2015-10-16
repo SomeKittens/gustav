@@ -3,8 +3,8 @@
 // workflow datums
 import {GustavGraph} from './GustavGraph';
 import {gustav} from './index';
+import {Observable} from '@reactivex/rxjs';
 
-let Rx = require('@reactivex/rxjs');
 let guid = require('node-guid');
 
 export interface NodeDef {
@@ -72,7 +72,7 @@ export class Workflow {
 
       let nextNode = this.ggraph.transformEdges[nodeName].map(dep => resolveDeps(dep, finalNode));
       if (nextNode.length) {
-        nextNode = Rx.Observable.merge.apply(null, nextNode);
+        nextNode = Observable.merge.apply(null, nextNode);
       }
 
       let result = this.ggraph.nodes[nodeName].init(nextNode);
@@ -93,8 +93,7 @@ export class Workflow {
         return resolveDeps(penultimateNodeSym, penultimateNodeSym);
       });
 
-      let mergedDeps = Rx.Observable.merge.apply(null, deps);
-
+      let mergedDeps = Observable.merge.apply(null, deps);
       this.ggraph.nodes[key].init(mergedDeps);
 
       // Trigger the streams

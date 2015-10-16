@@ -1,5 +1,6 @@
 /// <reference path="typings/tsd.d.ts" />
 /// <reference path="Symbol.d.ts" />
+/// <reference path="Promise.d.ts" />
 
 'use strict';
 
