@@ -23,6 +23,10 @@ interface IRegisteredNode {
   factory: Function;
 }
 
+interface IConfig {
+  id?: any;
+}
+
 class Gustav {
   registeredNodes: IRegisteredNode[];
   workflows: any;
@@ -30,7 +34,7 @@ class Gustav {
     this.registeredNodes = [];
     this.workflows = {};
   }
-  makeNode (nodeName: string, graph: GustavGraph, config: Object): symbol {
+  makeNode (nodeName: string, graph: GustavGraph, config: IConfig): symbol {
     let node = this.registeredNodes.filter((regNode) => regNode.name === nodeName)[0];
 
     if (!node) {
@@ -39,12 +43,8 @@ class Gustav {
 
     // Attempt to detect config to make symbol tag more descriptive
     let symbolTag = node.name;
-    if (config) {
-      if(!(config[0] instanceof Object)) {
-        symbolTag += '-' + config[0];
-      } else if (config[0].id) {
-        symbolTag += '-' + config[0].id;
-      }
+    if (config && config.id) {
+      symbolTag += '-' + config[0].id;
     }
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
