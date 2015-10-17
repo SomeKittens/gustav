@@ -4,7 +4,7 @@
   "description": "Framework for building realtime processing flows in Node.js",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsd install && tsc",
     "build:watch": "tsc --watch",
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -28,6 +28,7 @@
     "tail": "^0.4.0"
   },
   "devDependencies": {
+    "tsd": "^0.6.5",
     "tslint": "^2.5.1",
     "typescript": "^1.6.2"
   },
