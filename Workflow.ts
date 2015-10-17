@@ -98,6 +98,7 @@ export class Workflow {
     // All sinks are terminal
     // For each sinkEdge, find the next item
     let sinkEdges = this.ggraph.getSinkEdges();
+    let dependencies = [];
     Object.getOwnPropertySymbols(sinkEdges).forEach(key => {
       let deps = sinkEdges[key].map(penultimateNodeSym => {
         // Reset loop checking
@@ -109,12 +110,11 @@ export class Workflow {
       let mergedDeps = Observable.merge.apply(null, deps);
       this.ggraph.nodes[key].init(mergedDeps);
 
-      // Trigger the streams
-      deps.forEach(dep => {
-        let subscription = dep.connect();
-        this.unsubs.push(subscription);
-      });
+      dependencies = dependencies.concat(deps);
     });
+
+    // Trigger the streams after everything's set up
+    this.unsubs = dependencies.map(dep => dep.connect())
 
   }
   stop() {
