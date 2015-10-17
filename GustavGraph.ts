@@ -1,12 +1,12 @@
 'use strict';
 
-interface Edge {
+interface IEdge {
   from: symbol;
   to: symbol;
 }
 
 export class GustavGraph {
-  sinkEdges: Edge[];
+  sinkEdges: IEdge[];
   transformEdges: Object;
   nodes: Object;
   constructor() {
@@ -14,7 +14,7 @@ export class GustavGraph {
     this.transformEdges = {};
     this.nodes = {};
   }
-  addEdge(from: symbol, to: symbol) {
+  addEdge(from: symbol, to: symbol): void {
     if (!from) { throw new Error('From node not defined'); }
     if (!to) { throw new Error(/*to node defined, or */'To node not defined'/*that is the question*/); }
     if (!this.nodes[from]) {
@@ -46,7 +46,7 @@ export class GustavGraph {
       this.transformEdges[from].push(to);
     }
   }
-  getSinkEdges() {
+  getSinkEdges(): Object {
     return this.sinkEdges.reduce((obj, edge) => {
       if (!obj[edge.from]) {
         obj[edge.from] = [];

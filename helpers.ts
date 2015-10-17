@@ -6,7 +6,7 @@ import {Observable} from '@reactivex/rxjs';
 
 // TODO: .d.ts for tail
 // import {Tail} from 'tail';
-var Tail = require('tail').Tail;
+let Tail = require('tail').Tail;
 
 export let fileSource = gustav.source('fileSource', (config) => {
   if (typeof config === 'string') { config = { filename: config }; }
@@ -31,7 +31,7 @@ export let fileSource = gustav.source('fileSource', (config) => {
   };
 });
 
-export let consoleSink = gustav.sink('consoleSink', (prefix='Gustav:') => {
+export let consoleSink = gustav.sink('consoleSink', (prefix = 'Gustav:') => {
   return (iO) => {
     iO.forEach(console.log.bind(console, prefix), console.log.bind(console, prefix), console.log.bind(console, prefix));
   };
@@ -42,15 +42,16 @@ export let fileSink = gustav.sink('FileSink', (filename) => {
     // Clear the file
     writeFileSync(filename, '');
     iO.forEach(
-      arr => arr.forEach(title => {appendFileSync(filename, title + '\n')}),
+      arr => arr.forEach(title => appendFileSync(filename, title + '\n')),
       err => console.log('err', err),
-      () => {console.log('Finished');appendFileSync(filename, '**done**\n')}
-    )
+      () => appendFileSync(filename, '**done**\n')
+    );
   };
 });
 
+let noop = () => {};
 export let nullSink = gustav.sink('nullSink', () => {
   return (iO) => {
-    iO.subscribe(() => {}, (err) => {console.log('err', err)}, () => {});
+    iO.subscribe(noop, (err) => console.log('err', err), noop);
   };
 });

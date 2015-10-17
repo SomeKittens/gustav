@@ -7,7 +7,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "prepublish": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "tslint *.ts"
   },
   "author": "Randall Koutnik",
   "typescript": {
@@ -25,5 +26,8 @@
     "@reactivex/rxjs": "^5.0.0-alpha.4",
     "node-guid": "0.0.3",
     "tail": "^0.4.0"
+  },
+  "devDependencies": {
+    "tslint": "^2.5.1"
   }
 }

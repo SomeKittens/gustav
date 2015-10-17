@@ -5,50 +5,33 @@
 'use strict';
 
 import {GustavGraph} from './GustavGraph';
-import {Workflow, NodeDef} from './Workflow';
+import {Workflow, INodeDef} from './Workflow';
 
-interface NodeFactory {
-  (...config:any[]): symbol;
+interface INodeFactory {
+  (...config: any[]): symbol;
 }
 
-interface NodeCollection {
+interface INodeCollection {
   source: string[];
   transformer: string[];
   sink: string[];
 }
 
-interface RegisteredNode {
+interface IRegisteredNode {
   name: string;
   type: string;
   factory: Function;
 }
 
 class Gustav {
-  registeredNodes: RegisteredNode[];
+  registeredNodes: IRegisteredNode[];
   workflows: any;
   constructor() {
     this.registeredNodes = [];
     this.workflows = {};
   }
-  // TODO: new type of registration that's just a singleton
-  // Just calls NodeFactory and returns the symbol
-  private register(type: string, name: string, factory): NodeFactory {
-
-    // Names must be unique
-    const exists = this.registeredNodes.filter((x) => x.name === name);
-    if (exists.length) {
-      throw new Error(name + ' already registered');
-    }
-    this.registeredNodes.push({
-      type,
-      name,
-      factory
-    });
-
-    return this.makeNode.bind(this, name);
-  }
-  makeNode (nodeName:string, graph: GustavGraph, config) {
-    var node = this.registeredNodes.filter((x) => x.name === nodeName)[0];
+  makeNode (nodeName: string, graph: GustavGraph, config: Object): symbol {
+    let node = this.registeredNodes.filter((regNode) => regNode.name === nodeName)[0];
 
     if (!node) {
       throw new Error(nodeName + ' not registered');
@@ -70,26 +53,44 @@ class Gustav {
     };
     return sym;
   }
-  makeWorkflow (config:NodeDef[]) {
+  makeWorkflow (config: INodeDef[]): Workflow {
     let wf = new Workflow(config);
     this.workflows[wf.guid] = wf;
     return wf;
   }
-  start (guid:string) {
+  start (guid: string): void {
     this.workflows[guid].start();
   }
-  stop (guid:string) {
+  stop (guid: string): void {
     this.workflows[guid].stop();
   }
-  getNodeTypes ():NodeCollection {
+  getNodeTypes (): INodeCollection {
     return this.registeredNodes.reduce((obj, node) => {
       obj[node.type].push(node.name);
       return obj;
     }, {source: [], transformer: [], sink: []});
   }
-  source(name: string, factory: Function) { return this.register('source', name, factory)}
-  transformer(name: string, factory: Function) { return this.register('transformer', name, factory)}
-  sink(name: string, factory: Function) { return this.register('sink', name, factory)}
+  source(name: string, factory: Function): Function { return this.register('source', name, factory); }
+  transformer(name: string, factory: Function): Function { return this.register('transformer', name, factory); }
+  sink(name: string, factory: Function): Function { return this.register('sink', name, factory); }
+
+  // TODO: new type of registration that's just a singleton
+  // Just calls INodeFactory and returns the symbol
+  private register(type: string, name: string, factory): INodeFactory {
+
+    // Names must be unique
+    const exists = this.registeredNodes.filter((regNode) => regNode.name === name);
+    if (exists.length) {
+      throw new Error(name + ' already registered');
+    }
+    this.registeredNodes.push({
+      type,
+      name,
+      factory
+    });
+
+    return this.makeNode.bind(this, name);
+  }
 };
 
-export var gustav = new Gustav();
+export let gustav = new Gustav();
