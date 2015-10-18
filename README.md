@@ -1,5 +1,6 @@
 # Gustav
 
+[![Build Status](https://travis-ci.org/SomeKittens/gustav.svg?branch=master)](https://travis-ci.org/SomeKittens/gustav)
 ***Status: Developer Preview.  Everything is subject to change without warning.  Some things in this readme may be not technically exist***
 
 Gustav makes realtime data processing simple and modular.
