@@ -54,17 +54,20 @@ export class Workflow {
       if (cache[nodeName]) {
         return cache[nodeName];
       }
+
+      let result;
       // Base case: All sources do not have deps
       if (this.ggraph.nodes[nodeName].type === 'source') {
-        return this.ggraph.nodes[nodeName].init();
+        result = this.ggraph.nodes[nodeName].init();
+      } else {
+        let nextNode = this.ggraph.transformEdges[nodeName].map(dep => resolveDeps(dep, finalNode));
+        if (nextNode.length) {
+          nextNode = Observable.merge.apply(null, nextNode);
+        }
+
+        result = this.ggraph.nodes[nodeName].init(nextNode);
       }
 
-      let nextNode = this.ggraph.transformEdges[nodeName].map(dep => resolveDeps(dep, finalNode));
-      if (nextNode.length) {
-        nextNode = Observable.merge.apply(null, nextNode);
-      }
-
-      let result = this.ggraph.nodes[nodeName].init(nextNode);
       if (nodeName === finalNode) {
         result = result.publish();
       }
@@ -79,7 +82,6 @@ export class Workflow {
       let deps = sinkEdges[key].map(penultimateNodeSym => {
         // Reset loop checking
         seen = [];
-
         return resolveDeps(penultimateNodeSym, penultimateNodeSym);
       });
 
