@@ -3,6 +3,8 @@ node_js:
   - "4.2"
   - "4.1"
   - "4.0"
+env:
+ - TSD_GITHUB_TOKEN=dc0dec2e633e1366658a40961cdcf389eaf3dfba
 script:
   - npm run lint
   - npm test
