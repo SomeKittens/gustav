@@ -24,17 +24,12 @@ export class Workflow {
   uuid: string;
   listeners: INodeDef[];
   nodeDefs: IStrongNodeDef[];
+  createdFromJSON: boolean;
   private unsubs: any;
-  constructor(_nodeDefs: INodeDef[]) {
+  constructor(public name?: string) {
     this.uuid = uuid.v4();
     this.listeners = [];
-
-    this.nodeDefs = _nodeDefs.map((def): IStrongNodeDef => {
-      if (typeof def.dataFrom === 'number') {
-        def.dataFrom = [<number>def.dataFrom];
-      }
-      return <IStrongNodeDef>def;
-    });
+    this.ggraph = new GustavGraph();
 
     this.init();
   }
@@ -109,14 +104,77 @@ export class Workflow {
 
     this.listeners.push(def);
   }
+  source (name: string, config?: Object) {
+    // Tracks whatever node we've touched last
+    let prevNode = gustav.makeNode(name, this.ggraph, config);
+
+    let returnable = {
+      transf: (name: string, config?) => {
+        let transfNode = gustav.makeNode(name, this.ggraph, config);
+
+        this.ggraph.addEdge(transfNode, prevNode);
+        prevNode = transfNode;
+        return returnable;
+      },
+      sink: (name: string, config?): Workflow => {
+        // Add the sink to the graph
+        // return the workflow
+        let sinkNode = gustav.makeNode(name, this.ggraph, config);
+        this.ggraph.addEdge(sinkNode, prevNode);
+
+        return this;
+      },
+      merge: (...nodes) => {
+        let mergeNode = gustav.makeNode('__gmergeNode', this.ggraph, {nodes});
+
+        this.ggraph.addEdge(mergeNode, prevNode);
+        prevNode = mergeNode;
+        return returnable;
+      },
+      tap: (name: string, config?) => {
+        let sinkNode = gustav.makeNode(name, this.ggraph, config);
+        this.ggraph.addEdge(sinkNode, prevNode);
+        return returnable;
+      }
+    };
+
+    return returnable;
+  }
+  /**
+   * Creates a workflow from a JSON definition
+   * @param  {INodeDef[]} config Array of node definitions to make the workflow from
+   * @return {Workflow}          Workflow from said JSON
+   */
+  fromJSON (config: INodeDef[]): Workflow {
+    if (Object.getOwnPropertySymbols(this.ggraph.nodes).length) {
+      throw new Error('Tried to call fromJSON on a non-empty workflow');
+    }
+
+    this.createdFromJSON = true;
+    this.nodeDefs = config.map((def): IStrongNodeDef => {
+      if (typeof def.dataFrom === 'number') {
+        def.dataFrom = [<number>def.dataFrom];
+      }
+      return <IStrongNodeDef>def;
+    });
+
+    this.init();
+    return this;
+  }
   // Reset everything, destroying old references and saving memory
   private init(): void {
     this.isStarted = false;
     this.unsubs = [];
 
+    if (this.createdFromJSON) {
+      this.initJSON();
+    }
+  }
+  private initJSON(): void {
     // array since the keys are numbers
     let idSymbolMap = [];
-    // Add datas to GG
+
+    // Need to reset
     this.ggraph = new GustavGraph();
 
     // Create a new node for each def

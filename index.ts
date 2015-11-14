@@ -6,6 +6,7 @@
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
+import {Observable} from '@reactivex/rxjs';
 
 interface INodeFactory {
   (...config: any[]): symbol;
@@ -23,10 +24,6 @@ interface IRegisteredNode {
   factory: Function;
 }
 
-interface IConfig {
-  id?: any;
-}
-
 class Gustav {
   registeredNodes: IRegisteredNode[];
   workflows: any;
@@ -34,7 +31,7 @@ class Gustav {
     this.registeredNodes = [];
     this.workflows = {};
   }
-  makeNode (nodeName: string, graph: GustavGraph, config: IConfig): symbol {
+  makeNode (nodeName: string, graph: GustavGraph, config: any): symbol {
     let node = this.registeredNodes.filter((regNode) => regNode.name === nodeName)[0];
 
     if (!node) {
@@ -53,8 +50,12 @@ class Gustav {
     };
     return sym;
   }
-  makeWorkflow (config: INodeDef[]): Workflow {
-    let wf = new Workflow(config);
+  /**
+   * Create an empty workflow to be chained off of
+   * @param {string} uuid [description]
+   */
+  createWorkflow (name?: string): Workflow {
+    let wf = new Workflow(name);
     this.workflows[wf.uuid] = wf;
     return wf;
   }
@@ -94,11 +95,8 @@ class Gustav {
 };
 
 export let gustav = new Gustav();
-<<<<<<< Updated upstream
-=======
 
 // Meta nodes
 gustav.transformer('__gmergeNode', (config, iO) => {
   return Observable.merge(...config.nodes);
 });
->>>>>>> Stashed changes

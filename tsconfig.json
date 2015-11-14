@@ -8,8 +8,8 @@
     "index.ts",
     "helpers.ts",
     "Workflow.ts",
-    "test/race.ts",
     "test/samples.ts",
-    "test/startstop.ts"
+    "test/startstop.ts",
+    "test/json.ts"
   ]
 }
