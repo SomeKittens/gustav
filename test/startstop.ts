@@ -4,30 +4,26 @@
 'use strict';
 
 import {gustav} from '../index';
-import {INodeDef, Workflow} from '../Workflow';
 import {addCommonNodes} from './common';
 
 addCommonNodes(gustav);
 
-// Couple of common workflows
-let simpleWf: INodeDef[] = [{
-  id: 1,
-  name: 'intSource'
-}, {
-  id: 2,
-  name: 'fromIntSource',
-  dataFrom: 1
-}];
-
 // TODO: not stupid way of doing this
+// i.e. no try/catch or nested setTimeouts
 describe('Workflow start/stop', () => {
   it('should be able to start & stop a workflow', (done) => {
     try {
-      let wf: Workflow = gustav.makeWorkflow(simpleWf);
-      wf.start();
+      let simpleWf = gustav.createWorkflow()
+        .source('intSource')
+        .sink('fromIntSource');
+
+      simpleWf.start();
+
       setTimeout(() => {
-        wf.stop();
-        wf.start();
+        simpleWf.stop();
+
+        // Run the workflow again
+        simpleWf.start();
         setTimeout(() => {
           done();
         }, 15);
