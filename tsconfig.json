@@ -9,6 +9,7 @@
     "helpers.ts",
     "Workflow.ts",
     "test/race.ts",
-    "test/samples.ts"
+    "test/samples.ts",
+    "test/startstop.ts"
   ]
 }
