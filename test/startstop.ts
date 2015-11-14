@@ -5,14 +5,12 @@
 
 import {gustav} from '../index';
 import {INodeDef, Workflow} from '../Workflow';
-import {Observable} from '@reactivex/rxjs';
-import {expect} from 'chai';
 import {addCommonNodes} from './common';
 
 addCommonNodes(gustav);
 
 // Couple of common workflows
-let simpleWf:INodeDef[] = [{
+let simpleWf: INodeDef[] = [{
   id: 1,
   name: 'intSource'
 }, {
@@ -25,7 +23,7 @@ let simpleWf:INodeDef[] = [{
 describe('Workflow start/stop', () => {
   it('should be able to start & stop a workflow', (done) => {
     try {
-      let wf:Workflow = gustav.makeWorkflow(simpleWf);
+      let wf: Workflow = gustav.makeWorkflow(simpleWf);
       wf.start();
       setTimeout(() => {
         wf.stop();

@@ -16,7 +16,7 @@ export let logGenerator = gustav.source('logGenerator', (options) => {
         let url = urls[Math.floor(Math.random() * 4)];
         let status = statuses[Math.floor(Math.random() * statuses.length)];
         o.next(url + ' ' + status);
-      }
+      };
 
       let interval = setInterval(writeToLogs, 100);
       return () => {
@@ -26,7 +26,7 @@ export let logGenerator = gustav.source('logGenerator', (options) => {
   };
 });
 
-export let numberGen = gustav.source('numberGen', (interval=150) => {
+export let numberGen = gustav.source('numberGen', (interval= 150) => {
   return () => {
     return Observable.interval(interval);
   };
@@ -42,10 +42,10 @@ export let logParser = gustav.transformer('logParser', () => {
         url: arr[0]
       };
     });
-  }
+  };
 });
 
-export let times = gustav.transformer('times', (mulitplier=2) => {
+export let times = gustav.transformer('times', (mulitplier= 2) => {
   return (iO) => {
     return iO.map(num => num * mulitplier);
   };
@@ -57,7 +57,7 @@ export let square = gustav.transformer('square', () => {
   };
 });
 
-export let consoleSink = gustav.sink('consoleSink', (prefix='Gustav') => {
+export let consoleSink = gustav.sink('consoleSink', (prefix= 'Gustav') => {
   return (iO) => {
     iO.forEach(console.log.bind(console, prefix), console.log.bind(console, prefix), console.log.bind(console, prefix));
   };

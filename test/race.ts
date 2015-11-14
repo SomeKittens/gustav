@@ -5,8 +5,6 @@
 
 import {gustav} from '../index';
 import {INodeDef} from '../Workflow';
-import {Observable} from '@reactivex/rxjs';
-import {expect} from 'chai';
 import {addCommonNodes} from './common';
 
 addCommonNodes(gustav);
@@ -18,7 +16,7 @@ addCommonNodes(gustav);
 // So Object.getOwnPropertySymbols will return that one *after* other nodes
 // And so it'll be the last to be processed by resolveDeps
 // http://stackoverflow.com/q/33703252/1216976
-let wf:INodeDef[] = [{
+let wf: INodeDef[] = [{
   id: 2,
   name: 'timesTwo',
   dataFrom: 1
@@ -46,5 +44,5 @@ describe('Workflow cache race condition', () => {
     setTimeout(done, 10);
 
     gustav.makeWorkflow(wf).start();
-  })
+  });
 });

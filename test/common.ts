@@ -68,7 +68,7 @@ export let addCommonNodes = gustav => {
     return iO.subscribe(
       word => {
         expect(word, 'fromStrTransformer next').to.equal(words[idx] + '!');
-        idx++
+        idx++;
       },
       err => {
         throw err;

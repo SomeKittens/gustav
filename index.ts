@@ -5,7 +5,7 @@
 'use strict';
 
 import {GustavGraph} from './GustavGraph';
-import {Workflow, INodeDef} from './Workflow';
+import {Workflow} from './Workflow';
 
 interface INodeFactory {
   (...config: any[]): symbol;
@@ -94,3 +94,11 @@ class Gustav {
 };
 
 export let gustav = new Gustav();
+<<<<<<< Updated upstream
+=======
+
+// Meta nodes
+gustav.transformer('__gmergeNode', (config, iO) => {
+  return Observable.merge(...config.nodes);
+});
+>>>>>>> Stashed changes

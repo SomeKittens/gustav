@@ -5,14 +5,13 @@
 
 import {gustav} from '../index';
 import {INodeDef} from '../Workflow';
-import {Observable} from '@reactivex/rxjs';
 import {expect} from 'chai';
 import {addCommonNodes} from './common';
 
 addCommonNodes(gustav);
 
 // Couple of common workflows
-let simpleWf:INodeDef[] = [{
+let simpleWf: INodeDef[] = [{
   id: 1,
   name: 'intSource'
 }, {
@@ -21,7 +20,7 @@ let simpleWf:INodeDef[] = [{
   dataFrom: 1
 }];
 
-let threeWf:INodeDef[] = [{
+let threeWf: INodeDef[] = [{
   id: 1,
   name: 'intSource'
 }, {
@@ -34,7 +33,7 @@ let threeWf:INodeDef[] = [{
   dataFrom: 2
 }];
 
-let strWf:INodeDef[] = [{
+let strWf: INodeDef[] = [{
   id: 1,
   name: 'strSource'
 }, {
@@ -49,7 +48,7 @@ let strWf:INodeDef[] = [{
 
 
 // Multiple paths
-let forkWf:INodeDef[] = [{
+let forkWf: INodeDef[] = [{
   id: 1,
   name: 'intSource'
 }, {
