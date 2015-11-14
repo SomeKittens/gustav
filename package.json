@@ -24,7 +24,7 @@
     "url": "git@github.com:SomeKittens/gustav.git"
   },
   "dependencies": {
-    "@reactivex/rxjs": "^5.0.0-alpha.4",
+    "@reactivex/rxjs": "^5.0.0-alpha.10",
     "node-guid": "0.0.3",
     "tail": "^0.4.0"
   },
