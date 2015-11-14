@@ -28,6 +28,8 @@
     "tail": "^0.4.0"
   },
   "devDependencies": {
+    "chai": "3.4.x",
+    "mocha": "2.3.x",
     "tsd": "^0.6.5",
     "tslint": "^2.5.1",
     "typescript": "^1.6.2"

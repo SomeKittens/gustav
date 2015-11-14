@@ -11,7 +11,7 @@ export interface INodeDef {
   name: string;
   type?: string; // probably not needed
   config?: any;
-  dataFrom: number[] | number;
+  dataFrom?: number[] | number; // Only on non-source nodes
   id: number;
 }
 
@@ -44,8 +44,9 @@ export class Workflow {
     // traverse & run graph
     let cache = {};
     let seen = [];
+    let sources = [];
 
-    let resolveDeps = (nodeName: symbol, finalNode: symbol) => {
+    let resolveDeps = (nodeName: symbol) => {
       if (seen.indexOf(nodeName) > -1) {
         throw new Error('Loop detected in dependency graph');
       }
@@ -58,41 +59,36 @@ export class Workflow {
       let result;
       // Base case: All sources do not have deps
       if (this.ggraph.nodes[nodeName].type === 'source') {
-        result = this.ggraph.nodes[nodeName].init();
+        result = this.ggraph.nodes[nodeName].init().publish();
+        sources.push(result);
       } else {
-        let nextNode = this.ggraph.transformEdges[nodeName].map(dep => resolveDeps(dep, finalNode));
+        let nextNode = this.ggraph.transformEdges[nodeName].map(dep => resolveDeps(dep));
         if (nextNode.length) {
-          nextNode = Observable.merge.apply(null, nextNode);
+          nextNode = Observable.merge(...nextNode);
         }
 
         result = this.ggraph.nodes[nodeName].init(nextNode);
       }
 
-      if (nodeName === finalNode) {
-        result = result.publish();
-      }
       cache[nodeName] = result;
       return result;
     };
     // All sinks are terminal
     // For each sinkEdge, find the next item
     let sinkEdges = this.ggraph.getSinkEdges();
-    let dependencies = [];
     Object.getOwnPropertySymbols(sinkEdges).forEach(key => {
       let deps = sinkEdges[key].map(penultimateNodeSym => {
         // Reset loop checking
         seen = [];
-        return resolveDeps(penultimateNodeSym, penultimateNodeSym);
+        return resolveDeps(penultimateNodeSym);
       });
 
-      let mergedDeps = Observable.merge.apply(null, deps);
+      let mergedDeps = Observable.merge(...deps);
       this.ggraph.nodes[key].init(mergedDeps);
-
-      dependencies = dependencies.concat(deps);
     });
 
     // Trigger the streams after everything's set up
-    this.unsubs = dependencies.map(dep => dep.connect());
+    this.unsubs = sources.map(source => source.connect());
 
   }
   stop(): void {
