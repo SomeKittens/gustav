@@ -55,14 +55,14 @@ class Gustav {
   }
   makeWorkflow (config: INodeDef[]): Workflow {
     let wf = new Workflow(config);
-    this.workflows[wf.guid] = wf;
+    this.workflows[wf.uuid] = wf;
     return wf;
   }
-  start (guid: string): void {
-    this.workflows[guid].start();
+  start (uuid: string): void {
+    this.workflows[uuid].start();
   }
-  stop (guid: string): void {
-    this.workflows[guid].stop();
+  stop (uuid: string): void {
+    this.workflows[uuid].stop();
   }
   getNodeTypes (): INodeCollection {
     return this.registeredNodes.reduce((obj, node) => {

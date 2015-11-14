@@ -67,6 +67,9 @@ let forkWf:INodeDef[] = [{
 }];
 
 
+// http://stackoverflow.com/a/6640851/1216976
+let uuidReg = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+
 [{
   name: 'simpleWf',
   wf: simpleWf
@@ -82,8 +85,9 @@ let forkWf:INodeDef[] = [{
 }]
 .forEach(def => {
   describe(`Testing ${def.name} workflow`, () => {
-    it(`${def.name} should not throw on start`, () => {
+    it(`${def.name} should return a UUID`, () => {
       let a = gustav.makeWorkflow(def.wf);
+      expect(a.uuid).to.match(uuidReg);
       a.start();
     });
 

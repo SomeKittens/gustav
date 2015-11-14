@@ -4,8 +4,7 @@
 import {GustavGraph} from './GustavGraph';
 import {gustav} from './index';
 import {Observable} from '@reactivex/rxjs';
-
-let guid = require('node-guid');
+import * as uuid from 'node-uuid';
 
 export interface INodeDef {
   name: string;
@@ -22,12 +21,12 @@ interface IStrongNodeDef extends INodeDef {
 export class Workflow {
   ggraph: GustavGraph;
   isStarted: boolean;
-  guid: string;
+  uuid: string;
   listeners: INodeDef[];
   nodeDefs: IStrongNodeDef[];
   private unsubs: any;
   constructor(_nodeDefs: INodeDef[]) {
-    this.guid = guid.new();
+    this.uuid = uuid.v4();
     this.listeners = [];
 
     this.nodeDefs = _nodeDefs.map((def): IStrongNodeDef => {
