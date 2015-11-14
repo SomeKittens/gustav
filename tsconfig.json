@@ -7,6 +7,8 @@
   "files": [
     "index.ts",
     "helpers.ts",
-    "Workflow.ts"
+    "Workflow.ts",
+    "test/race.ts",
+    "test/samples.ts"
   ]
 }
