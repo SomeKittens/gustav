@@ -46,7 +46,6 @@ describe(`Workflow's .fromJSON()`, () => {
     dataFrom: 2
   }];
 
-
   // Multiple paths
   let forkWf: INodeDef[] = [{
     id: 1,
