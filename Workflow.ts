@@ -5,17 +5,17 @@ import {GustavGraph} from './GustavGraph';
 import {gustav} from './index';
 import {Observable} from '@reactivex/rxjs';
 import * as uuid from 'node-uuid';
-
-export interface INodeDef {
-  name: string;
-  type?: string; // probably not needed
-  config?: any;
-  dataFrom?: number[] | number; // Only on non-source nodes
-  id: number;
-}
+import {INodeDef, ISourceNode, ITransfNode, ISinkNode} from './defs';
 
 interface IStrongNodeDef extends INodeDef {
   dataFrom: number[];
+}
+
+interface IWorkflowChain {
+  transf(name: string | ITransfNode, config?): IWorkflowChain;
+  sink(name: string | ISinkNode, config?): Workflow;
+  merge(...nodes: (string | ISourceNode | ITransfNode)[]): IWorkflowChain;
+  tap(name: string | ISinkNode, config?): IWorkflowChain;
 }
 
 export class Workflow {
@@ -104,36 +104,63 @@ export class Workflow {
 
     this.listeners.push(def);
   }
-  source (name: string, config?: Object) {
+  source (sourceName: string | ISourceNode, SourceConfig?: Object): IWorkflowChain {
     // Tracks whatever node we've touched last
-    let prevNode = gustav.makeNode(name, this.ggraph, config);
+    let prevNode;
+
+    // Allows us to use user-provided factories
+    let registerTmpNode = (type, factory): string => {
+      let name = uuid.v4();
+      gustav[type](name, factory);
+      return name;
+    };
+
+    /**
+     * Adds node to our internal ggraph, registering if needed
+     * @name {name of node (can be factory)}
+     * @type {what type of node: source/transf/sink}
+     * @config {Configuration for the node}
+     * @replaceOld {Should we overwrite prevNode?}
+     */
+    let addNodeToGraph = (name, type: string, config?, replaceOld?) => {
+      if (typeof name !== 'string') {
+        name = registerTmpNode(type, name);
+      }
+      let currentNode = gustav.makeNode(name, this.ggraph, config);
+
+      this.ggraph.addEdge(currentNode, prevNode);
+      if (replaceOld) {
+        prevNode = currentNode;
+      }
+    };
+
+
+    if (typeof sourceName !== 'string') {
+      sourceName = registerTmpNode('source', sourceName);
+    }
+    prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig);
 
     let returnable = {
-      transf: (name: string, config?) => {
-        let transfNode = gustav.makeNode(name, this.ggraph, config);
-
-        this.ggraph.addEdge(transfNode, prevNode);
-        prevNode = transfNode;
+      transf: (name: string | ITransfNode, config?): IWorkflowChain => {
+        addNodeToGraph(name, 'transformer', config, true);
         return returnable;
       },
-      sink: (name: string, config?): Workflow => {
+      sink: (name: string | ISinkNode, config?): Workflow => {
         // Add the sink to the graph
-        // return the workflow
-        let sinkNode = gustav.makeNode(name, this.ggraph, config);
-        this.ggraph.addEdge(sinkNode, prevNode);
+        addNodeToGraph(name, 'sink', config);
 
+        // return the workflow
         return this;
       },
-      merge: (...nodes) => {
+      merge: (...nodes: (string | ISourceNode | ITransfNode)[]): IWorkflowChain => {
         let mergeNode = gustav.makeNode('__gmergeNode', this.ggraph, {nodes});
 
         this.ggraph.addEdge(mergeNode, prevNode);
         prevNode = mergeNode;
         return returnable;
       },
-      tap: (name: string, config?) => {
-        let sinkNode = gustav.makeNode(name, this.ggraph, config);
-        this.ggraph.addEdge(sinkNode, prevNode);
+      tap: (name: string | ISinkNode, config?): IWorkflowChain => {
+        addNodeToGraph(name, 'sink', config);
         return returnable;
       }
     };

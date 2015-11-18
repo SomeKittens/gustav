@@ -4,7 +4,7 @@
 'use strict';
 
 import {gustav} from '../index';
-import {INodeDef} from '../Workflow';
+import {INodeDef} from '../defs';
 import {expect} from 'chai';
 import {addCommonNodes} from './common';
 
