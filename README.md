@@ -8,7 +8,7 @@
 
 ---
 
-***Status: Alpha.  Most major functionality is in place but details may be subject to change***
+***Status: Alpha.  Most major functionality is in place but details are subject to change***
 
 Gustav makes realtime data processing simple and modular.  Each individual unit of processing (let's call them nodes) can be strung together into a workflow.  That probably sounds really complicated.  Let's look at some code:
 
@@ -24,8 +24,8 @@ let walrusTweeter = gustav.makeWorkflow()
   .transf(sentiment, {prop: 'text'})
   .transf(findAngry)
   .sink(twitSend, {
-    message: function (tweet) {
-      return `@${tweet.user.screen_name} Have a happy walrus: http://i.imgur.com/T9kVIAq.jpg`
+    message: (tweet) =>
+      `@${tweet.user.screen_name} Have a happy walrus: http://i.imgur.com/T9kVIAq.jpg`
   });
 
 walrusTweeter.start();
