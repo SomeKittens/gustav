@@ -12,6 +12,7 @@
     "test/samples.ts",
     "test/startstop.ts",
     "test/json.ts",
-    "test/factory-direct.ts"
+    "test/factory-direct.ts",
+    "test/meta.ts"
   ]
 }

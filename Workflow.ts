@@ -18,6 +18,10 @@ interface IWorkflowChain {
   tap(name: string | ISinkNode, config?): IWorkflowChain;
 }
 
+interface IMetadataFactory {
+  (name: string): Function;
+}
+
 export class Workflow {
   ggraph: GustavGraph;
   isStarted: boolean;
@@ -26,10 +30,12 @@ export class Workflow {
   nodeDefs: IStrongNodeDef[];
   createdFromJSON: boolean;
   private unsubs: any;
+  private metadataFuncs: IMetadataFactory[];
   constructor(public name?: string) {
     this.uuid = uuid.v4();
     this.listeners = [];
     this.ggraph = new GustavGraph();
+    this.metadataFuncs = [];
 
     this.init();
   }
@@ -62,6 +68,13 @@ export class Workflow {
         }
 
         result = this.ggraph.nodes[nodeName].init(nextNode);
+      }
+
+      if (this.metadataFuncs.length) {
+        let strName = nodeName.toString().replace(/Symbol\((.*)\)$/, '$1');
+        this.metadataFuncs.forEach(func => {
+          result = result.do(func(strName));
+        });
       }
 
       cache[nodeName] = result;
@@ -103,6 +116,9 @@ export class Workflow {
       .forEach(sym => this.ggraph.addEdge(listenerNode, sym));
 
     this.listeners.push(def);
+  }
+  addMetadataFunction (func: IMetadataFactory): void {
+    this.metadataFuncs.push(func);
   }
   source (sourceName: string | ISourceNode, SourceConfig?: Object): IWorkflowChain {
     // Tracks whatever node we've touched last
