@@ -43,6 +43,21 @@ describe('Common workflows', () => {
       .sink('fromIntTransformer');
   });
 
+  wfFactories.push(function (): Workflow {
+    // Multiple paths
+    let s = gustav.createWorkflow('mergeWf')
+      .source('intSource');
+
+    let d = s.transf('timesTwo');
+    let h = s.transf('divideByTwo');
+
+    let wf = d
+      .merge(h)
+      .sink('fromMergedMath');
+
+    return wf;
+  });
+
   // http://stackoverflow.com/a/6640851/1216976
   let uuidReg = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 

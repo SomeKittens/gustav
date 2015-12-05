@@ -28,6 +28,7 @@ export let addCommonNodes = gustav => {
   });
 
   gustav.transformer('timesTwo', iO => iO.map(item => item * 2));
+  gustav.transformer('divideByTwo', iO => iO.map(item => item / 2));
 
   gustav.transformer('important', iO => iO.map(word => word + '!'));
 
@@ -74,6 +75,21 @@ export let addCommonNodes = gustav => {
         throw err;
       },
       () => expect(idx, 'fromStrTransformer complete').to.equal(5)
+    );
+  });
+
+  gustav.sink('fromMergedMath', iO => {
+    let idx = 0;
+    let expected = [0, 2, 4, 6, 8, 0.5, 1, 1.5];
+    return iO.subscribe(
+      num => {
+        expect(expected, 'fromMergedMath next').to.contain(num);
+        idx++;
+      },
+      err => {
+        throw err;
+      },
+      () => expect(idx, 'fromMergedMath complete').to.equal(5)
     );
   });
 };

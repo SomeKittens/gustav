@@ -34,7 +34,7 @@ describe('Node metadata', () => {
         expect(i, 'metadataFunc was run five times').to.equal(5);
         simpleWf.stop();
         done();
-      }, 15);
+      }, 30);
     } catch (e) {
       done(e);
     }

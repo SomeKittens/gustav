@@ -12,9 +12,10 @@ interface IStrongNodeDef extends INodeDef {
 }
 
 interface IWorkflowChain {
+  prevNode: Symbol;
   transf(name: string | ITransfNode, config?): IWorkflowChain;
   sink(name: string | ISinkNode, config?): Workflow;
-  merge(...nodes: (string | ISourceNode | ITransfNode)[]): IWorkflowChain;
+  merge(...nodes: IWorkflowChain[]): IWorkflowChain;
   tap(name: string | ISinkNode, config?): IWorkflowChain;
 }
 
@@ -168,7 +169,10 @@ export class Workflow {
         // return the workflow
         return this;
       },
-      merge: (...nodes: (string | ISourceNode | ITransfNode)[]): IWorkflowChain => {
+      // TODO: Support adding a registered node here
+      merge: (...chains: IWorkflowChain[]): IWorkflowChain => {
+        let nodes = chains.map(chain => chain.prevNode);
+        nodes.push(prevNode);
         let mergeNode = gustav.makeNode('__gmergeNode', this.ggraph, {nodes});
 
         this.ggraph.addEdge(mergeNode, prevNode);
@@ -178,7 +182,9 @@ export class Workflow {
       tap: (name: string | ISinkNode, config?): IWorkflowChain => {
         addNodeToGraph(name, 'sink', config);
         return returnable;
-      }
+      },
+      // Needed for merge to work
+      prevNode
     };
 
     return returnable;
