@@ -103,6 +103,7 @@ export class Workflow {
     this.unsubs.forEach(sub => sub.unsubscribe());
     this.init();
   }
+  // DEPRECATED
   // Adds a stealth sink that allows us to listen in on the workflow output
   addListener (def: INodeDef): void {
     if (this.isStarted) {
