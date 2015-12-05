@@ -10,8 +10,7 @@ import {addCommonNodes} from './testNodes';
 
 addCommonNodes(gustav);
 describe(`Workflow's .fromJSON()`, () => {
-  let wfFactories = [];
-
+  let noop = (): void => {};
   let simpleWf = (done): INodeDef[] => [{
     id: 1,
     name: 'intSource'
@@ -62,7 +61,7 @@ describe(`Workflow's .fromJSON()`, () => {
     id: 3,
     name: 'fromIntSource',
     dataFrom: 1,
-    config: () => {}
+    config: noop
   }, {
     id: 4,
     name: 'fromIntTransformer',
@@ -119,12 +118,12 @@ describe(`Workflow's .fromJSON()`, () => {
       id: 4,
       name: 'fromIntTransformer',
       dataFrom: 2,
-      config: () => {}
+      config: noop
     }, {
       id: 3,
       name: 'fromIntSource',
       dataFrom: 1,
-      config: () => {}
+      config: done
     }, {
       id: 1,
       name: 'intSource'

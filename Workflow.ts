@@ -134,7 +134,7 @@ export class Workflow {
     if (typeof sourceName !== 'string') {
       sourceName = registerTmpNode('source', sourceName);
     }
-    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig)
+    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig);
     return new WorkflowChain(this, prevNode);
   }
   /**
@@ -221,7 +221,7 @@ class WorkflowChain {
     this.addNodeToGraph(name, 'sink', config);
     return new WorkflowChain(this.workflow, this.prevNode);
   }
-  clone() {
+  clone(): IWorkflowChain {
     return new WorkflowChain(this.workflow, this.prevNode);
   }
 
@@ -232,7 +232,7 @@ class WorkflowChain {
    * @config {Configuration for the node}
    * @replaceOld {Should we overwrite prevNode?}
    */
-  private addNodeToGraph(name, type: string, config?, replaceOld?) {
+  private addNodeToGraph(name, type: string, config?, replaceOld?): void {
     if (typeof name !== 'string') {
       name = this.registerTmpNode(type, name);
     }

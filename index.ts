@@ -6,7 +6,6 @@
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
-import {Observable} from '@reactivex/rxjs';
 
 interface INodeFactory {
   (...config: any[]): symbol;
