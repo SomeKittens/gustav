@@ -1,95 +1,93 @@
+/// <reference path="../typings/mocha/mocha.d.ts" />
+/// <reference path="../typings/chai/chai.d.ts" />
+
 'use strict';
 
-import {Observable} from '@reactivex/rxjs';
+import {gustav} from '../index';
+import {Workflow} from '../Workflow';
 import {expect} from 'chai';
+import {addCommonNodes} from './testNodes';
 
+addCommonNodes(gustav);
 
-/**
- * Nodes common to all test workflows
- */
-let registered = false;
-export let addCommonNodes = gustav => {
-  // Avoids double registration problems
-  if (registered) { return; }
-  registered = true;
+// Couple of common workflows
+describe('Common workflows', () => {
+  let wfFactories = [];
 
-  // Used by several nodes
-  let words = ['hello', 'world', 'gustav', 'is', 'neat'];
-
-  gustav.source('intSource', () => {
-    return Observable.interval(1).take(5);
+  wfFactories.push((done): Workflow => {
+    return gustav.createWorkflow('simpleWf')
+      .source('intSource')
+      .sink('fromIntSource', done);
   });
 
-  gustav.source('strSource', () => {
-      return Observable
-      .interval(1)
-      .take(5)
-      .map(int => words[<number>int]);
+  wfFactories.push((done): Workflow => {
+    return gustav.createWorkflow('threeWf')
+      .source('intSource')
+      .transf('timesTwo')
+      .sink('fromIntTransformer', done);
   });
 
-  gustav.transformer('timesTwo', iO => iO.map(item => item * 2));
-  gustav.transformer('divideByTwo', iO => iO.map(item => item / 2));
-
-  gustav.transformer('important', iO => iO.map(word => word + '!'));
-
-  gustav.sink('fromIntSource', iO => {
-    let nextNum = 0;
-    return iO.subscribe(
-      num => {
-        expect(num, 'fromSource next').to.equal(nextNum++);
-      },
-      err => {
-        throw err;
-      },
-      () => expect(nextNum, 'fromSource complete').to.equal(5)
-    );
+  wfFactories.push((done): Workflow => {
+    return gustav.createWorkflow('strWf')
+      .source('strSource')
+      .transf('important')
+      .sink('fromStrTransformer', done);
   });
 
-  gustav.sink('fromIntTransformer', iO => {
-    let idx = 0;
-    let lastNum;
-    return iO.subscribe(
-      num => {
-        lastNum = num;
-        expect(num, 'fromTransformer next').to.equal(idx * 2);
-        idx++;
-      },
-      err => {
-        throw err;
-      },
-      () => {
-        expect(lastNum, 'fromTransformer complete lastNum').to.equal(8);
-        expect(idx, 'fromTransformer complete idx').to.equal(5);
-      }
-    );
+  wfFactories.push((done): Workflow => {
+    // Multiple paths
+    return gustav.createWorkflow('tapWf')
+      .source('intSource')
+      .tap('fromIntSource', () => {})
+      .transf('timesTwo')
+      .sink('fromIntTransformer', done);
   });
 
-  gustav.sink('fromStrTransformer', iO => {
-    let idx = 0;
-    return iO.subscribe(
-      word => {
-        expect(word, 'fromStrTransformer next').to.equal(words[idx] + '!');
-        idx++;
-      },
-      err => {
-        throw err;
-      },
-      () => expect(idx, 'fromStrTransformer complete').to.equal(5)
-    );
+  wfFactories.push((done): Workflow => {
+    // Multiple paths
+    let s = gustav.createWorkflow('mergeWf')
+      .source('intSource');
+
+    // When we call transf, it'll update the state
+    // So we need a copy at this state.
+    let s0 = s.clone();
+
+    let d = s.transf('timesTwo');
+    let h = s0.transf('divideByTwo');
+
+    let wf = d
+      .merge(h)
+      .sink('fromMergedMath', done);
+
+    return wf;
   });
 
-  gustav.sink('fromMergedMath', iO => {
-    let idx = 0;
-    let expected = [0, 2, 4, 6, 8, 0.5, 1, 1.5];
-    return iO.subscribe(
-      num => {
-        expect(expected, 'fromMergedMath next').to.contain(num);
-        idx++;
-      },
-      err => {
-        throw err;
-      },
-      () => expect(idx, 'fromMergedMath complete').to.equal(5)
-    );
+  // http://stackoverflow.com/a/6640851/1216976
+  let uuidReg = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+
+  wfFactories
+  .forEach(factory => {
+    describe(`Testing common workflow`, () => {
+      beforeEach(() => {
+        let wf = factory();
+        // Silly hacks, yes, we're creating an entire workflow to get the name
+        console.log(`      - ${wf.name}`);
+      });
+      it(`should return a UUID`, () => {
+        // Give the factory noop for "done"
+        let wf = factory();
+        expect(wf.uuid).to.match(uuidReg);
+      });
+
+      it(`should send correct data around`, (done) => {
+        let wf = factory(done);
+        try {
+          // assertions are in the nodes themselves
+          wf.start();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
   });
-};
+});

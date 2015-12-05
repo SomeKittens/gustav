@@ -16,15 +16,15 @@ describe('passing in node functions directly', () => {
     });
     let myFun = iO => iO.map(num => num * 2);
     let expectSink = iO => iO.subscribe(
-      num => expect(num).to.equal(34)
+      num => expect(num).to.equal(34),
+      done,
+      done
     );
 
     let wf = gustav.createWorkflow('dummy')
       .source(makeNums)
       .transf(myFun)
       .sink(expectSink);
-
-    setTimeout(done, 15);
 
     wf.start();
   });

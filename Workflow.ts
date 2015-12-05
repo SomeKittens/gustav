@@ -12,11 +12,12 @@ interface IStrongNodeDef extends INodeDef {
 }
 
 interface IWorkflowChain {
-  prevNode: Symbol;
+  prevNode: symbol;
   transf(name: string | ITransfNode, config?): IWorkflowChain;
   sink(name: string | ISinkNode, config?): Workflow;
   merge(...nodes: IWorkflowChain[]): IWorkflowChain;
   tap(name: string | ISinkNode, config?): IWorkflowChain;
+  clone(): IWorkflowChain;
 }
 
 interface IMetadataFactory {
@@ -48,14 +49,16 @@ export class Workflow {
     let sources = [];
 
     let resolveDeps = (nodeName: symbol) => {
-      if (seen.indexOf(nodeName) > -1) {
-        throw new Error('Loop detected in dependency graph');
-      }
-      seen.push(nodeName);
-
+      // We're sure it's not a loop here because we resolveDeps before adding to cache.
       if (cache[nodeName]) {
         return cache[nodeName];
       }
+
+      if (seen.indexOf(nodeName) > -1) {
+        throw new Error('Loop detected in dependency graph: ' + nodeName.toString());
+      }
+      seen.push(nodeName);
+
 
       let result;
       // Base case: All sources do not have deps
@@ -74,7 +77,7 @@ export class Workflow {
       if (this.metadataFuncs.length) {
         let strName = nodeName.toString().replace(/Symbol\((.*)\)$/, '$1');
         this.metadataFuncs.forEach(func => {
-          result = result.do(func(strName));
+          result.subscribe(func(strName));
         });
       }
 
@@ -123,72 +126,16 @@ export class Workflow {
     this.metadataFuncs.push(func);
   }
   source (sourceName: string | ISourceNode, SourceConfig?: Object): IWorkflowChain {
-    // Tracks whatever node we've touched last
-    let prevNode;
-
-    // Allows us to use user-provided factories
     let registerTmpNode = (type, factory): string => {
       let name = uuid.v4();
       gustav[type](name, factory);
       return name;
     };
-
-    /**
-     * Adds node to our internal ggraph, registering if needed
-     * @name {name of node (can be factory)}
-     * @type {what type of node: source/transf/sink}
-     * @config {Configuration for the node}
-     * @replaceOld {Should we overwrite prevNode?}
-     */
-    let addNodeToGraph = (name, type: string, config?, replaceOld?) => {
-      if (typeof name !== 'string') {
-        name = registerTmpNode(type, name);
-      }
-      let currentNode = gustav.makeNode(name, this.ggraph, config);
-
-      this.ggraph.addEdge(currentNode, prevNode);
-      if (replaceOld) {
-        prevNode = currentNode;
-      }
-    };
-
-
     if (typeof sourceName !== 'string') {
       sourceName = registerTmpNode('source', sourceName);
     }
-    prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig);
-
-    let returnable = {
-      transf: (name: string | ITransfNode, config?): IWorkflowChain => {
-        addNodeToGraph(name, 'transformer', config, true);
-        return returnable;
-      },
-      sink: (name: string | ISinkNode, config?): Workflow => {
-        // Add the sink to the graph
-        addNodeToGraph(name, 'sink', config);
-
-        // return the workflow
-        return this;
-      },
-      // TODO: Support adding a registered node here
-      merge: (...chains: IWorkflowChain[]): IWorkflowChain => {
-        let nodes = chains.map(chain => chain.prevNode);
-        nodes.push(prevNode);
-        let mergeNode = gustav.makeNode('__gmergeNode', this.ggraph, {nodes});
-
-        this.ggraph.addEdge(mergeNode, prevNode);
-        prevNode = mergeNode;
-        return returnable;
-      },
-      tap: (name: string | ISinkNode, config?): IWorkflowChain => {
-        addNodeToGraph(name, 'sink', config);
-        return returnable;
-      },
-      // Needed for merge to work
-      prevNode
-    };
-
-    return returnable;
+    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig)
+    return new WorkflowChain(this, prevNode);
   }
   /**
    * Creates a workflow from a JSON definition
@@ -240,5 +187,67 @@ export class Workflow {
     });
 
     this.listeners.forEach(listener => this.addListener(listener));
+  }
+}
+
+// Thought: What if we allowed multiples?
+// .source(bill, bob, valentina)
+// Just automerged behind the scenes.
+class WorkflowChain {
+  // prevNode tracks whatever node we've touched last
+  constructor(public workflow: Workflow, public prevNode: symbol) {}
+  transf (name: string | ITransfNode, config?): IWorkflowChain {
+    this.addNodeToGraph(name, 'transformer', config, true);
+    return new WorkflowChain(this.workflow, this.prevNode);
+  }
+  sink (name: string | ISinkNode, config?): Workflow {
+    // Add the sink to the graph
+    this.addNodeToGraph(name, 'sink', config);
+
+    // return the workflow
+    return this.workflow;
+  }
+  merge (...chains: IWorkflowChain[]): IWorkflowChain {
+    // TODO: Support adding a registered node here
+    let nodes = chains.map(chain => chain.prevNode);
+    nodes.push(this.prevNode);
+    let mergeNode = gustav.makeNode('__gmergeNode', this.workflow.ggraph, nodes);
+
+    nodes.forEach(node => this.workflow.ggraph.addEdge(mergeNode, node));
+    this.prevNode = mergeNode;
+    return new WorkflowChain(this.workflow, this.prevNode);
+  }
+  tap (name: string | ISinkNode, config?): IWorkflowChain {
+    this.addNodeToGraph(name, 'sink', config);
+    return new WorkflowChain(this.workflow, this.prevNode);
+  }
+  clone() {
+    return new WorkflowChain(this.workflow, this.prevNode);
+  }
+
+  /**
+   * Adds node to our internal ggraph, registering if needed
+   * @name {name of node (can be factory)}
+   * @type {what type of node: source/transf/sink}
+   * @config {Configuration for the node}
+   * @replaceOld {Should we overwrite prevNode?}
+   */
+  private addNodeToGraph(name, type: string, config?, replaceOld?) {
+    if (typeof name !== 'string') {
+      name = this.registerTmpNode(type, name);
+    }
+    let currentNode = gustav.makeNode(name, this.workflow.ggraph, config);
+
+    this.workflow.ggraph.addEdge(currentNode, this.prevNode);
+
+    if (replaceOld) {
+      this.prevNode = currentNode;
+    }
+  }
+  // Allows us to use user-provided factories
+  private registerTmpNode (type, factory): string {
+    let name = uuid.v4();
+    gustav[type](name, factory);
+    return name;
   }
 }

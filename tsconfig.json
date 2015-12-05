@@ -9,7 +9,7 @@
     "helpers.ts",
     "Workflow.ts",
     "defs.ts",
-    "test/samples.ts",
+    "test/common.ts",
     "test/startstop.ts",
     "test/json.ts",
     "test/factory-direct.ts",

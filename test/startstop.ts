@@ -4,30 +4,31 @@
 'use strict';
 
 import {gustav} from '../index';
-import {addCommonNodes} from './common';
+import {addCommonNodes} from './testNodes';
 
 addCommonNodes(gustav);
 
 // TODO: not stupid way of doing this
-// i.e. no try/catch or nested setTimeouts
+// i.e. no try/catch
 describe('Workflow start/stop', () => {
   it('should be able to start & stop a workflow', (done) => {
     try {
+      let firstRun = true;
       let simpleWf = gustav.createWorkflow()
         .source('intSource')
-        .sink('fromIntSource');
+        .sink('fromIntSource', () => {
+          if (firstRun) {
+            firstRun = false;
+            simpleWf.stop();
+            // Run the workflow again
+            simpleWf.start();
+          } else {
+            done();
+          }
+        });
 
       simpleWf.start();
 
-      setTimeout(() => {
-        simpleWf.stop();
-
-        // Run the workflow again
-        simpleWf.start();
-        setTimeout(() => {
-          done();
-        }, 15);
-      }, 15);
     } catch (e) {
       done(e);
     }

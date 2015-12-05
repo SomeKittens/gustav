@@ -97,6 +97,6 @@ class Gustav {
 export let gustav = new Gustav();
 
 // Meta nodes
-gustav.transformer('__gmergeNode', (config, iO) => {
-  return Observable.merge(...config.nodes);
+gustav.transformer('__gmergeNode', (nodes, iO) => {
+  return iO.do(() => {});
 });

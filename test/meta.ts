@@ -4,13 +4,13 @@
 'use strict';
 
 import {gustav} from '../index';
-import {addCommonNodes} from './common';
+import {addCommonNodes} from './testNodes';
 import {expect} from 'chai';
 
 addCommonNodes(gustav);
 
 // TODO: not stupid way of doing this
-// i.e. no try/catch or nested setTimeouts
+// i.e. no try/catch
 describe('Node metadata', () => {
 
   it('should be able to attach a metadata watcher', (done) => {
@@ -18,7 +18,10 @@ describe('Node metadata', () => {
       let i = 0;
       let simpleWf = gustav.createWorkflow()
         .source('intSource')
-        .sink('fromIntSource');
+        .sink('fromIntSource', () => {
+          expect(i, 'metadataFunc was run five times').to.equal(5);
+          done();
+        });
 
       simpleWf.addMetadataFunction(nodeName => {
         expect(nodeName, 'metadataFunc nodeName').to.equal('intSource');
@@ -29,12 +32,6 @@ describe('Node metadata', () => {
       });
 
       simpleWf.start();
-
-      setTimeout(() => {
-        expect(i, 'metadataFunc was run five times').to.equal(5);
-        simpleWf.stop();
-        done();
-      }, 30);
     } catch (e) {
       done(e);
     }

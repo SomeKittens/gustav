@@ -6,21 +6,23 @@
 import {gustav} from '../index';
 import {INodeDef} from '../defs';
 import {expect} from 'chai';
-import {addCommonNodes} from './common';
+import {addCommonNodes} from './testNodes';
 
 addCommonNodes(gustav);
 describe(`Workflow's .fromJSON()`, () => {
+  let wfFactories = [];
 
-  let simpleWf: INodeDef[] = [{
+  let simpleWf = (done): INodeDef[] => [{
     id: 1,
     name: 'intSource'
   }, {
     id: 2,
     name: 'fromIntSource',
-    dataFrom: 1
+    dataFrom: 1,
+    config: done
   }];
 
-  let threeWf: INodeDef[] = [{
+  let threeWf = (done): INodeDef[] => ([{
     id: 1,
     name: 'intSource'
   }, {
@@ -30,10 +32,11 @@ describe(`Workflow's .fromJSON()`, () => {
   }, {
     id: 3,
     name: 'fromIntTransformer',
-    dataFrom: 2
-  }];
+    dataFrom: 2,
+    config: done
+  }]);
 
-  let strWf: INodeDef[] = [{
+  let strWf = (done): INodeDef[] => ([{
     id: 1,
     name: 'strSource'
   }, {
@@ -43,11 +46,12 @@ describe(`Workflow's .fromJSON()`, () => {
   }, {
     id: 3,
     name: 'fromStrTransformer',
-    dataFrom: 2
-  }];
+    dataFrom: 2,
+    config: done
+  }]);
 
   // Multiple paths
-  let forkWf: INodeDef[] = [{
+  let forkWf = (done): INodeDef[] => ([{
     id: 1,
     name: 'intSource'
   }, {
@@ -57,12 +61,14 @@ describe(`Workflow's .fromJSON()`, () => {
   }, {
     id: 3,
     name: 'fromIntSource',
-    dataFrom: 1
+    dataFrom: 1,
+    config: () => {}
   }, {
     id: 4,
     name: 'fromIntTransformer',
-    dataFrom: 2
-  }];
+    dataFrom: 2,
+    config: done
+  }]);
 
 
   // http://stackoverflow.com/a/6640851/1216976
@@ -82,19 +88,16 @@ describe(`Workflow's .fromJSON()`, () => {
     wf: forkWf
   }]
   .forEach(def => {
-    it(`${def.name} should return a UUID`, () => {
-      let a = gustav.createWorkflow().fromJSON(def.wf);
+    it(`${def.name} should return a UUID`, (done) => {
+      let a = gustav.createWorkflow().fromJSON(def.wf(done));
       expect(a.uuid).to.match(uuidReg);
       a.start();
     });
 
     it(`${def.name} should send correct data around`, (done) => {
-      // Bit of a hack, everything should be through by 10ms in
-      let time = setTimeout(done, 10);
       try {
-        gustav.createWorkflow().fromJSON(def.wf).start();
+        gustav.createWorkflow().fromJSON(def.wf(done)).start();
       } catch (e) {
-        clearTimeout(time);
         done(e);
       }
     });
@@ -108,28 +111,27 @@ describe(`Workflow's .fromJSON()`, () => {
     // So Object.getOwnPropertySymbols will return that one *after* other nodes
     // And so it'll be the last to be processed by resolveDeps
     // http://stackoverflow.com/q/33703252/1216976
-    let wfRace: INodeDef[] = [{
+    let wfRace = (done): INodeDef[] => [{
       id: 2,
       name: 'timesTwo',
       dataFrom: 1
     }, {
       id: 4,
       name: 'fromIntTransformer',
-      dataFrom: 2
+      dataFrom: 2,
+      config: () => {}
     }, {
       id: 3,
       name: 'fromIntSource',
-      dataFrom: 1
+      dataFrom: 1,
+      config: () => {}
     }, {
       id: 1,
       name: 'intSource'
     }];
 
     it('should send correct data around', (done) => {
-      // Bit of a hack, everything should be through by 10ms in
-      setTimeout(done, 10);
-
-      let wf = gustav.createWorkflow().fromJSON(wfRace);
+      let wf = gustav.createWorkflow().fromJSON(wfRace(done));
 
       // Error will be thrown on start
       wf.start();
@@ -142,7 +144,7 @@ describe(`Workflow's .fromJSON()`, () => {
       .sink('fromIntSource');
 
     function err(): void {
-      wf.fromJSON(forkWf);
+      wf.fromJSON(forkWf(() => {}));
     }
 
     expect(err).to.throw(Error);
