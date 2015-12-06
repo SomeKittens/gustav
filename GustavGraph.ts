@@ -34,7 +34,7 @@ export class GustavGraph {
     }
 
     if (this.nodes[from].type === 'sink') {
-      // Cant use destructuring here because from/to are Symbols
+      // Can't use destructuring here because from/to are Symbols
       this.sinkEdges.push({
         from: from,
         to: to

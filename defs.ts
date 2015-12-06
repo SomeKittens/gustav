@@ -2,7 +2,7 @@ import {Observable, Subscription} from '@reactivex/rxjs';
 
 export interface INodeDef {
   name: string;
-  type?: string; // probably not needed
+  type?: string;
   config?: any;
   dataFrom?: number[] | number; // Only on non-source nodes
   id: number;

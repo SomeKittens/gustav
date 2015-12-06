@@ -45,6 +45,7 @@ class Gustav {
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
       type: node.type,
+      config: config, // Storing config here for later toJSON calls
       init: config ? node.factory.bind(null, config) : node.factory
     };
     return sym;

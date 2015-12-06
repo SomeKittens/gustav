@@ -158,6 +158,48 @@ export class Workflow {
     this.init();
     return this;
   }
+  toJSON (): INodeDef[] {
+    let wfDef = [];
+    let id = 0;
+    let cache = [];
+    let getNodeData = (sym: symbol): Number => {
+      if (cache[sym]) {
+        return cache[sym];
+      }
+      let node: INodeDef = {
+        id: id++,
+        name: sym.toString().replace(/Symbol\((.*)\)$/, '$1'),
+        type: this.ggraph.nodes[sym].type
+      };
+      if (node.type !== 'source') {
+        node.dataFrom = this.ggraph.nodes[sym].map(getNodeData);
+      }
+      if (this.ggraph.nodes[sym].config) {
+        node.config = this.ggraph.nodes[sym].config;
+      }
+      wfDef.push(node);
+
+      cache[sym] = node.id;
+      return node.id;
+    };
+
+    let sinkEdges = this.ggraph.getSinkEdges();
+    Object.getOwnPropertySymbols(sinkEdges).map(key => {
+      let node: INodeDef = {
+        id: id++,
+        name: key.toString().replace(/Symbol\((.*)\)$/, '$1'),
+        dataFrom: sinkEdges[key].map(getNodeData),
+        config: this.ggraph.nodes[key].config,
+        type: 'sink'
+      };
+      if (this.ggraph.nodes[key].config) {
+        node.config = this.ggraph.nodes[key].config;
+      }
+      wfDef.push(node);
+    });
+
+    return wfDef;
+  }
   // Reset everything, destroying old references and saving memory
   private init(): void {
     this.isStarted = false;
