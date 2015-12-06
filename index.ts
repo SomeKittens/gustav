@@ -39,8 +39,8 @@ class Gustav {
 
     // Attempt to detect config to make symbol tag more descriptive
     let symbolTag = node.name;
-    if (config && config.id) {
-      symbolTag += '-' + config[0].__gid;
+    if (config && config.__gid) {
+      symbolTag += '-' + config.__gid;
     }
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
