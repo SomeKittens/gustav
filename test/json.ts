@@ -151,7 +151,7 @@ describe(`Workflow's .fromJSON()`, () => {
 });
 
 describe('Workflow\'s .toJSON', () => {
-  it('should convert a workflow into JSON', () => {
+  it('should convert a simple workflow into JSON', () => {
     let noop = () => {};
     let wf = gustav.createWorkflow()
       .source('intSource')
@@ -171,6 +171,40 @@ describe('Workflow\'s .toJSON', () => {
         type: 'sink'
       }
     ];
+
+    expect(wf.toJSON()).to.deep.equal(wfJSON);
+  });
+
+  it('should convert a complex workflow into JSON', () => {
+    let noop = () => {};
+    let wf = gustav.createWorkflow('tapWf')
+      .source('intSource')
+      .tap('fromIntSource', noop)
+      .transf('timesTwo')
+      .sink('fromIntTransformer', noop);
+
+    let wfJSON = [{
+      id: 1,
+      name: 'intSource',
+      type: 'source'
+    }, {
+      id: 0,
+      name: 'fromIntSource',
+      dataFrom: [1],
+      config: noop,
+      type: 'sink'
+    }, {
+      id: 3,
+      name: 'timesTwo',
+      dataFrom: [1],
+      type: 'transformer'
+    }, {
+      id: 2,
+      name: 'fromIntTransformer',
+      dataFrom: [3],
+      config: noop,
+      type: 'sink'
+    }];
 
     expect(wf.toJSON()).to.deep.equal(wfJSON);
   });

@@ -162,6 +162,7 @@ export class Workflow {
     let wfDef = [];
     let id = 0;
     let cache = [];
+
     let getNodeData = (sym: symbol): Number => {
       if (cache[sym]) {
         return cache[sym];
@@ -172,7 +173,7 @@ export class Workflow {
         type: this.ggraph.nodes[sym].type
       };
       if (node.type !== 'source') {
-        node.dataFrom = this.ggraph.nodes[sym].map(getNodeData);
+        node.dataFrom = this.ggraph.transformEdges[sym].map(getNodeData);
       }
       if (this.ggraph.nodes[sym].config) {
         node.config = this.ggraph.nodes[sym].config;
