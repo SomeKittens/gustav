@@ -1,6 +1,8 @@
 {
+  "version": "1.7.3",
   "compilerOptions": {
     "module": "commonjs",
+    "declaration": true,
     "target": "es5",
     "outDir": "dist"
   },
@@ -13,6 +15,11 @@
     "test/startstop.ts",
     "test/json.ts",
     "test/factory-direct.ts",
-    "test/meta.ts"
+    "test/meta.ts",
+
+    "Symbol.d.ts",
+    "Promise.d.ts",
+
+    "typings/tsd.d.ts"
   ]
 }

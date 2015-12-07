@@ -7,11 +7,11 @@ import {Observable} from '@reactivex/rxjs';
 import * as uuid from 'node-uuid';
 import {INodeDef, ISourceNode, ITransfNode, ISinkNode} from './defs';
 
-interface IStrongNodeDef extends INodeDef {
+export interface IStrongNodeDef extends INodeDef {
   dataFrom: number[];
 }
 
-interface IWorkflowChain {
+export interface IWorkflowChain {
   prevNode: symbol;
   transf(name: string | ITransfNode, config?): IWorkflowChain;
   sink(name: string | ISinkNode, config?): Workflow;
@@ -20,7 +20,7 @@ interface IWorkflowChain {
   clone(): IWorkflowChain;
 }
 
-interface IMetadataFactory {
+export interface IMetadataFactory {
   (name: string): Function;
 }
 

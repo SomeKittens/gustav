@@ -1,6 +1,6 @@
 'use strict';
 
-interface IEdge {
+export interface IEdge {
   from: symbol;
   to: symbol;
 }

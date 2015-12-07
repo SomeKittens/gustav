@@ -1,29 +1,25 @@
-/// <reference path="typings/tsd.d.ts" />
-/// <reference path="Symbol.d.ts" />
-/// <reference path="Promise.d.ts" />
-
 'use strict';
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
 
-interface INodeFactory {
+export interface INodeFactory {
   (...config: any[]): symbol;
 }
 
-interface INodeCollection {
+export interface INodeCollection {
   source: string[];
   transformer: string[];
   sink: string[];
 }
 
-interface IRegisteredNode {
+export interface IRegisteredNode {
   name: string;
   type: string;
   factory: Function;
 }
 
-class Gustav {
+export class __Gustav {
   registeredNodes: IRegisteredNode[];
   workflows: any;
   constructor() {
@@ -94,7 +90,7 @@ class Gustav {
   }
 };
 
-export let gustav = new Gustav();
+export let gustav = new __Gustav();
 
 // Meta nodes
 gustav.transformer('__gmergeNode', (nodes, iO) => {
