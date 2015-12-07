@@ -19,7 +19,7 @@ import {twitSearch, twitSend} from 'gustav-twitter';
 import {sentiment, findAngry} from 'gustav-sentiment';
 
 // Find angry people on Twitter and cheer them up with a walrus
-let walrusTweeter = gustav.makeWorkflow()
+let walrusTweeter = gustav.createWorkflow()
   .source(twitSearch, {query: 'bad'})
   .transf(sentiment, {prop: 'text'})
   .transf(findAngry)
