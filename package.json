@@ -13,9 +13,7 @@
     "test:watch": "mocha --watch dist/test"
   },
   "author": "Randall Koutnik",
-  "typescript": {
-    "definition": "index.d.ts"
-  },
+  "typings": "dist/index",
   "bugs": {
     "url": "https://github.com/SomeKittens/gustav/issues"
   },
