@@ -73,11 +73,17 @@ export let gustav = {
 // TODO: new type of registration that's just a singleton
 // Just calls INodeFactory and returns the symbol
 register = (type: string, name: string, factory): INodeFactory => {
+  if (!name) {
+    throw new Error('Attempted to register a node without providing a name');
+  }
+  if (!factory) {
+    throw new Error(`Attempted to register node ${name} without providing a factory`);
+  }
 
   // Names must be unique
   const exists = registeredNodes.filter((regNode) => regNode.name === name);
   if (exists.length) {
-    throw new Error(name + ' already registered');
+    throw new Error(`${name} already registered`);
   }
   registeredNodes.push({
     type,

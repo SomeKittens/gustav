@@ -16,6 +16,7 @@
     "test/json.ts",
     "test/factory-direct.ts",
     "test/meta.ts",
+    "test/register.ts",
 
     "Symbol.d.ts",
     "Promise.d.ts",
