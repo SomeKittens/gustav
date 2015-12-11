@@ -32,7 +32,7 @@
     "mocha": "~2.3.4",
     "snyk": "1.6.x",
     "tsd": "~0.6.5",
-    "tslint": "~3.1.0",
+    "tslint": "~3.2.0",
     "typescript": "~1.7.3"
   },
   "engines": {
