@@ -41,7 +41,7 @@ export class Workflow {
 
     this.init();
   }
-  start(): void {
+  start(): Workflow {
     this.isStarted = true;
     // traverse & run graph
     let cache = {};
@@ -101,10 +101,12 @@ export class Workflow {
     // Trigger the streams after everything's set up
     this.unsubs = sources.map(source => source.connect());
 
+    return this;
   }
-  stop(): void {
+  stop(): Workflow {
     this.unsubs.forEach(sub => sub.unsubscribe());
     this.init();
+    return this;
   }
   // DEPRECATED
   // Adds a stealth sink that allows us to listen in on the workflow output
