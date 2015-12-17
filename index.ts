@@ -72,6 +72,8 @@ export let gustav = {
 
 // TODO: new type of registration that's just a singleton
 // Just calls INodeFactory and returns the symbol
+
+// Outside of the exported object so this is private
 register = (type: string, name: string, factory): INodeFactory => {
   if (!name) {
     throw new Error('Attempted to register a node without providing a name');
