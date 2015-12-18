@@ -30,7 +30,7 @@
   "devDependencies": {
     "chai": "~3.4.1",
     "mocha": "~2.3.4",
-    "snyk": "1.7.x",
+    "snyk": "1.8.3",
     "tsd": "~0.6.5",
     "tslint": "~3.2.0",
     "typescript": "~1.7.3"
