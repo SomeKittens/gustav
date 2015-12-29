@@ -124,8 +124,9 @@ export class Workflow {
 
     this.listeners.push(def);
   }
-  addMetadataFunction (func: IMetadataFactory): void {
+  addMetadataFunction (func: IMetadataFactory): Workflow {
     this.metadataFuncs.push(func);
+    return this;
   }
   source (sourceName: string | ISourceNode, SourceConfig?: Object): IWorkflowChain {
     let registerTmpNode = (type, factory): string => {
