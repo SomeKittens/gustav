@@ -5,7 +5,7 @@ import {GustavGraph} from './GustavGraph';
 import {gustav} from './index';
 import {Observable} from '@reactivex/rxjs';
 import * as uuid from 'node-uuid';
-import {INodeDef, ISourceNode, ITransfNode, ISinkNode} from './defs';
+import {INodeDef, ISourceNode, ITransfNode, ISinkNode, IMetaConfig} from './defs';
 
 export interface IStrongNodeDef extends INodeDef {
   dataFrom: number[];
@@ -13,10 +13,10 @@ export interface IStrongNodeDef extends INodeDef {
 
 export interface IWorkflowChain {
   prevNode: symbol;
-  transf(name: string | ITransfNode, config?): IWorkflowChain;
-  sink(name: string | ISinkNode, config?): Workflow;
+  transf(name: string | ITransfNode, config?: any, metaConfig?: IMetaConfig): IWorkflowChain;
+  sink(name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): Workflow;
   merge(...nodes: IWorkflowChain[]): IWorkflowChain;
-  tap(name: string | ISinkNode, config?): IWorkflowChain;
+  tap(name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): IWorkflowChain;
   clone(): IWorkflowChain;
 }
 
@@ -116,7 +116,7 @@ export class Workflow {
       throw new Error('Attempted to add a listener to an ongoing Workflow');
     }
 
-    let listenerNode = gustav.makeNode(def.name, this.ggraph, def.config);
+    let listenerNode = gustav.makeNode(def.name, this.ggraph, def.config, def.metaConfig);
 
     this.ggraph.sinkEdges
       .map(edge => edge.to)
@@ -128,7 +128,7 @@ export class Workflow {
     this.metadataFuncs.push(func);
     return this;
   }
-  source (sourceName: string | ISourceNode, SourceConfig?: Object): IWorkflowChain {
+  source (sourceName: string | ISourceNode, SourceConfig?: Object, metaConfig?: IMetaConfig): IWorkflowChain {
     let registerTmpNode = (type, factory): string => {
       let name = uuid.v4();
       gustav[type](name, factory);
@@ -137,7 +137,7 @@ export class Workflow {
     if (typeof sourceName !== 'string') {
       sourceName = registerTmpNode('source', sourceName);
     }
-    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig);
+    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig, metaConfig);
     return new WorkflowChain(this, prevNode);
   }
   /**
@@ -222,7 +222,7 @@ export class Workflow {
 
     // Create a new node for each def
     this.nodeDefs.forEach(def => {
-      let sym = gustav.makeNode(def.name, this.ggraph, def.config);
+      let sym = gustav.makeNode(def.name, this.ggraph, def.config, def.metaConfig);
       idSymbolMap[def.id] = sym;
     });
 
@@ -242,13 +242,13 @@ export class Workflow {
 class WorkflowChain {
   // prevNode tracks whatever node we've touched last
   constructor(public workflow: Workflow, public prevNode: symbol) {}
-  transf (name: string | ITransfNode, config?): IWorkflowChain {
-    this.addNodeToGraph(name, 'transformer', config, true);
+  transf (name: string | ITransfNode, config?: any, metaConfig?: any): IWorkflowChain {
+    this.addNodeToGraph(name, 'transformer', config, metaConfig, true);
     return new WorkflowChain(this.workflow, this.prevNode);
   }
-  sink (name: string | ISinkNode, config?): Workflow {
+  sink (name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): Workflow {
     // Add the sink to the graph
-    this.addNodeToGraph(name, 'sink', config);
+    this.addNodeToGraph(name, 'sink', config, metaConfig);
 
     // return the workflow
     return this.workflow;
@@ -263,8 +263,8 @@ class WorkflowChain {
     this.prevNode = mergeNode;
     return new WorkflowChain(this.workflow, this.prevNode);
   }
-  tap (name: string | ISinkNode, config?): IWorkflowChain {
-    this.addNodeToGraph(name, 'sink', config);
+  tap (name: string | ISinkNode, config?, metaConfig?: IMetaConfig): IWorkflowChain {
+    this.addNodeToGraph(name, 'sink', config, metaConfig);
     return new WorkflowChain(this.workflow, this.prevNode);
   }
   clone(): IWorkflowChain {
@@ -278,11 +278,11 @@ class WorkflowChain {
    * @config {Configuration for the node}
    * @replaceOld {Should we overwrite prevNode?}
    */
-  private addNodeToGraph(name, type: string, config?, replaceOld?): void {
+  private addNodeToGraph(name, type: string, config?: any, metaConfig?: IMetaConfig, replaceOld?: boolean): void {
     if (typeof name !== 'string') {
       name = this.registerTmpNode(type, name);
     }
-    let currentNode = gustav.makeNode(name, this.workflow.ggraph, config);
+    let currentNode = gustav.makeNode(name, this.workflow.ggraph, config, metaConfig);
 
     this.workflow.ggraph.addEdge(currentNode, this.prevNode);
 

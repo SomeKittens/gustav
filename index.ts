@@ -2,6 +2,7 @@
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
+import {IMetaConfig} from './defs';
 
 export interface INodeFactory {
   (...config: any[]): symbol;
@@ -24,7 +25,7 @@ let workflows = {};
 let register;
 
 export let gustav = {
-  makeNode: (nodeName: string, graph: GustavGraph, config: any): symbol => {
+  makeNode: (nodeName: string, graph: GustavGraph, config: any, metaConfig?: IMetaConfig): symbol => {
     let node = registeredNodes.filter((regNode) => regNode.name === nodeName)[0];
 
     if (!node) {
@@ -33,8 +34,8 @@ export let gustav = {
 
     // Attempt to detect config to make symbol tag more descriptive
     let symbolTag = node.name;
-    if (config && config.__gid) {
-      symbolTag += '-' + config.__gid;
+    if (metaConfig && metaConfig.gid) {
+      symbolTag += '-' + metaConfig.gid;
     }
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
