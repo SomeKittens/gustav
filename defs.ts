@@ -1,7 +1,8 @@
 import {Observable, Subscription} from '@reactivex/rxjs';
 
 export interface IMetaConfig {
-  gid: string | number;
+  gid?: string | number;
+  external?: string;
 }
 
 export interface INodeDef {

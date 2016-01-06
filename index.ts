@@ -60,11 +60,70 @@ export let gustav = {
   stop: (uuid: string): void => {
     workflows[uuid].stop();
   },
+  reset: (): void => {
+    workflows = {};
+  },
   getNodeTypes: (): INodeCollection => {
     return registeredNodes.reduce((obj, node) => {
       obj[node.type].push(node.name);
       return obj;
     }, {source: [], transformer: [], sink: []});
+  },
+  makeGraph: (): any => {
+    let id = 0;
+    let graph = {
+      nodes: [],
+      links: []
+    };
+    let exInGraph = exName => graph.nodes.some(node => node.name === exName);
+    let getIdByName = name => graph.nodes.filter(node => node.name === name)[0].id;
+
+    Object.keys(workflows).forEach(wfKey => {
+      let wf = workflows[wfKey];
+      let sourceId = id;
+      graph.nodes.push({
+        type: 'workflow',
+        id: id,
+        name: wf.name
+      });
+      id++;
+
+      wf.external.source.forEach(exSource => {
+        let thisId;
+        if (!exInGraph(exSource)) {
+          graph.nodes.push({
+            type: 'external',
+            id: id,
+            name: exSource
+          });
+          thisId = id;
+          id++;
+        }
+        graph.links.push({
+          source: thisId || getIdByName(exSource),
+          target: sourceId
+        });
+      });
+
+      wf.external.sink.forEach(exSource => {
+        let thisId;
+        if (!exInGraph(exSource)) {
+          graph.nodes.push({
+            type: 'external',
+            id: id,
+            name: exSource
+          });
+          thisId = id;
+          id++;
+        }
+        graph.links.push({
+          source: sourceId,
+          target: thisId || getIdByName(exSource)
+        });
+      });
+    });
+
+    return graph;
   },
   source(name: string, factory: Function): Function { return register('source', name, factory); },
   transformer(name: string, factory: Function): Function { return register('transformer', name, factory); },
