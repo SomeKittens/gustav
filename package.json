@@ -9,7 +9,7 @@
     "lint": "tslint *.ts && tslint test/*.ts",
     "prepublish": "npm run build",
     "snyk": "snyk test",
-    "test": "npm run build && mocha dist/test",
+    "test": "mocha dist/test",
     "test:watch": "mocha --watch dist/test"
   },
   "author": "Randall Koutnik",
