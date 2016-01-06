@@ -17,7 +17,7 @@
     "test/factory-direct.ts",
     "test/meta.ts",
     "test/register.ts",
-    "test/gid.ts",
+    "test/misc.ts",
     "test/fullGraph.ts",
 
     "Symbol.d.ts",

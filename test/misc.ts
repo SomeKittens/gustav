@@ -18,3 +18,17 @@ describe('Adding a custom id to a node', () => {
     expect(wf.ggraph.sinkEdges[0].from.toString()).to.equal('Symbol(fromIntSource-bye)');
   });
 });
+
+describe('Workflows have name even when one is not passed in', () => {
+  before(() => gustav.reset());
+
+  it('assigns a name to a workflow', () => {
+    let wf = gustav.createWorkflow();
+    expect(wf.name).to.equal('Unnamed Workflow 0');
+  });
+
+  it('increments the number in the name', () => {
+    let wf = gustav.createWorkflow();
+    expect(wf.name).to.equal('Unnamed Workflow 1');
+  });
+});

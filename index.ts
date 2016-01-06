@@ -23,6 +23,7 @@ export interface IRegisteredNode {
 let registeredNodes: IRegisteredNode[] = [];
 let workflows = {};
 let register;
+let anonWfId = 0;
 
 export let gustav = {
   makeNode: (nodeName: string, graph: GustavGraph, config: any, metaConfig?: IMetaConfig): symbol => {
@@ -50,7 +51,7 @@ export let gustav = {
    * @param {string} uuid [description]
    */
   createWorkflow (name?: string): Workflow {
-    let wf = new Workflow(name);
+    let wf = new Workflow(name || `Unnamed Workflow ${anonWfId++}`);
     workflows[wf.uuid] = wf;
     return wf;
   },
@@ -61,6 +62,7 @@ export let gustav = {
     workflows[uuid].stop();
   },
   reset: (): void => {
+    anonWfId = 0;
     workflows = {};
   },
   getNodeTypes: (): INodeCollection => {
