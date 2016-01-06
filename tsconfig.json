@@ -18,6 +18,7 @@
     "test/meta.ts",
     "test/register.ts",
     "test/gid.ts",
+    "test/fullGraph.ts",
 
     "Symbol.d.ts",
     "Promise.d.ts",

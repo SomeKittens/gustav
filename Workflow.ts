@@ -24,6 +24,11 @@ export interface IMetadataFactory {
   (name: string): Function;
 }
 
+export interface IExternal {
+  source: string[];
+  sink: string[];
+}
+
 export class Workflow {
   ggraph: GustavGraph;
   isStarted: boolean;
@@ -31,6 +36,7 @@ export class Workflow {
   listeners: INodeDef[];
   nodeDefs: IStrongNodeDef[];
   createdFromJSON: boolean;
+  external: IExternal;
   private unsubs: any;
   private metadataFuncs: IMetadataFactory[];
   constructor(public name?: string) {
@@ -38,6 +44,12 @@ export class Workflow {
     this.listeners = [];
     this.ggraph = new GustavGraph();
     this.metadataFuncs = [];
+
+    // Used to plot out larger graphs with multiple workflows
+    this.external = {
+      source: [],
+      sink: []
+    };
 
     this.init();
   }
@@ -128,7 +140,7 @@ export class Workflow {
     this.metadataFuncs.push(func);
     return this;
   }
-  source (sourceName: string | ISourceNode, SourceConfig?: Object, metaConfig?: IMetaConfig): IWorkflowChain {
+  source (sourceName: string | ISourceNode, sourceConfig?: Object, metaConfig?: IMetaConfig): IWorkflowChain {
     let registerTmpNode = (type, factory): string => {
       let name = uuid.v4();
       gustav[type](name, factory);
@@ -137,7 +149,12 @@ export class Workflow {
     if (typeof sourceName !== 'string') {
       sourceName = registerTmpNode('source', sourceName);
     }
-    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, SourceConfig, metaConfig);
+
+    if (metaConfig && metaConfig.external) {
+      this.external.source.push(metaConfig.external);
+    }
+
+    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, sourceConfig, metaConfig);
     return new WorkflowChain(this, prevNode);
   }
   /**
@@ -282,6 +299,11 @@ class WorkflowChain {
     if (typeof name !== 'string') {
       name = this.registerTmpNode(type, name);
     }
+
+    if (type === 'sink' && metaConfig && metaConfig.external) {
+      this.workflow.external[type].push(metaConfig.external);
+    }
+
     let currentNode = gustav.makeNode(name, this.workflow.ggraph, config, metaConfig);
 
     this.workflow.ggraph.addEdge(currentNode, this.prevNode);
