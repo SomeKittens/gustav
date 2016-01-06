@@ -1,0 +1,8 @@
+{
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm test && npm run lint",
+      "commit-msg": "validate-commit-msg"
+    }
+  }
+}
