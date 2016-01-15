@@ -33,7 +33,7 @@ export let fileSource = gustav.source('fileSource', (config) => {
 
 export let consoleSink = gustav.sink('consoleSink', (prefix = 'Gustav:') => {
   return (iO) => {
-    iO.forEach(console.log.bind(console, prefix), console.log.bind(console, prefix), console.log.bind(console, prefix));
+    iO.subscribe(console.log.bind(console, prefix), console.log.bind(console, prefix), console.log.bind(console, prefix));
   };
 });
 
@@ -41,7 +41,7 @@ export let fileSink = gustav.sink('FileSink', (filename) => {
   return (iO) => {
     // Clear the file
     writeFileSync(filename, '');
-    iO.forEach(
+    iO.subscribe(
       arr => arr.forEach(title => appendFileSync(filename, title + '\n')),
       err => console.log('err', err),
       () => appendFileSync(filename, '**done**\n')
