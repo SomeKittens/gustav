@@ -1,6 +1,5 @@
 'use strict';
 
-import {gustav} from '../index';
 import {createClient, RedisClient} from 'redis';
 import {Observable, Subscription} from '@reactivex/rxjs';
 

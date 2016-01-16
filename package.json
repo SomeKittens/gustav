@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsd install && tsc",
     "build:watch": "tsc --watch",
-    "lint": "tslint *.ts && tslint test/*.ts",
+    "lint": "tslint *.ts && tslint external/*.ts && tslint test/*.ts",
     "prepublish": "npm run build",
     "snyk": "snyk test",
     "test": "mocha dist/test",
