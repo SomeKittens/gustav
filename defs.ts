@@ -27,3 +27,10 @@ export interface ISinkNode {
   (iO: Observable<any>): Subscription<any>;
   (config: Object, iO: Observable<any>): Subscription<any>;
 }
+
+export interface IExternalClient {
+  config: any;
+  getClient?(): any;
+  from(name: string): Observable<any>;
+  to(name: string, iO: Observable<any>): Subscription<any>;
+}

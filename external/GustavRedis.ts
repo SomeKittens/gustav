@@ -2,12 +2,13 @@
 
 import {createClient, RedisClient} from 'redis';
 import {Observable, Subscription} from '@reactivex/rxjs';
+import {IExternalClient} from '../defs';
 
 // Attach to a Gustav instance
 
 // Provides helpers for getting data from & to Redis event channels
-export class GustavRedis {
-  constructor(public config?) {}
+export class GustavRedis implements IExternalClient {
+  constructor(public config?: any) {}
 
   // supposedly private but needs to be overridden in tests
   getClient(): RedisClient {
