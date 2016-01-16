@@ -6,7 +6,7 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "node/node.d.ts": {
-      "commit": "efd40e67ff323f7147651bdbef03c03ead7b1675"
+      "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
     },
     "mocha/mocha.d.ts": {
       "commit": "efd40e67ff323f7147651bdbef03c03ead7b1675"
@@ -25,6 +25,9 @@
     },
     "node-uuid/node-uuid-base.d.ts": {
       "commit": "efd40e67ff323f7147651bdbef03c03ead7b1675"
+    },
+    "redis/redis.d.ts": {
+      "commit": "70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
     }
   }
 }

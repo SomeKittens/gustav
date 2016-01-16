@@ -11,6 +11,7 @@
     "helpers.ts",
     "Workflow.ts",
     "defs.ts",
+
     "test/common.ts",
     "test/startstop.ts",
     "test/json.ts",
@@ -19,6 +20,9 @@
     "test/register.ts",
     "test/misc.ts",
     "test/fullGraph.ts",
+    "test/GRedis.ts",
+
+    "external/GustavRedis.ts",
 
     "Symbol.d.ts",
     "Promise.d.ts",
