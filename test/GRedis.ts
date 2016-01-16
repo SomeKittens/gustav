@@ -1,16 +1,38 @@
 'use strict';
 
 import {GustavRedis} from '../external/GustavRedis';
-import {createClient} from 'redis';
 import {Observable} from '@reactivex/rxjs';
 
 import {expect} from 'chai';
 
+class MockClient {
+  listeners: any[];
+  channels: any[];
+  constructor() {
+    this.channels = [];
+    this.listeners = [];
+  }
+  publish(channel: string, item: string, fn?): void {
+    if (this.channels.indexOf(channel) > -1) {
+      this.listeners.forEach(listener => listener(channel, item));
+    }
+    if (fn) { fn(null, channel); }
+  }
+  on(message: string, fn): void {
+    this.listeners.push(fn);
+  }
+  subscribe(channel: string, fn?): void {
+    this.channels.push(channel);
+    if (fn) { fn(); }
+  }
+}
+
 describe('GustavRedis', () => {
   let client, gr;
   beforeEach(() => {
-    client = createClient();
+    client = new MockClient();
     gr = new GustavRedis();
+    gr.getClient = () => client;
   });
 
   it('constructs without errors', () => {

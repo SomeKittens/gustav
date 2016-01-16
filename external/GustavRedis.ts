@@ -1,7 +1,7 @@
 'use strict';
 
 import {gustav} from '../index';
-import {createClient} from 'redis';
+import {createClient, RedisClient} from 'redis';
 import {Observable, Subscription} from '@reactivex/rxjs';
 
 // Attach to a Gustav instance
@@ -10,9 +10,15 @@ import {Observable, Subscription} from '@reactivex/rxjs';
 export class GustavRedis {
   constructor(public config?) {}
 
+  // supposedly private but needs to be overridden in tests
+  getClient(): RedisClient {
+    // Need to create a new client for every connection
+    return createClient(this.config);
+  }
+
   // two methods, one called on from, other on to
   from(channelName: string): Observable<any> {
-    let client = createClient(this.config);
+    let client = this.getClient();
     return new Observable(o => {
       client.on('message', (channel, message) => {
         o.next(message);
@@ -23,7 +29,7 @@ export class GustavRedis {
     });
   }
   to(channelName: string, iO: Observable<any>): Subscription<any> {
-    let client = createClient(this.config);
+    let client = this.getClient();
     return iO.subscribe(
       item => client.publish(channelName, item)
     );
