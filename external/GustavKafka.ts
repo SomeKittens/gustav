@@ -56,6 +56,7 @@ export class GustavKafka implements IExternalClient {
     });
 
     return iO
+    // Things run faster overall with a little buffering
     .bufferTime(50)
     .subscribe(
       msg => {
@@ -66,7 +67,6 @@ export class GustavKafka implements IExternalClient {
         }
 
         if (!producer.ready) {
-          console.log('buffering');
           buffer = buffer.concat(msg);
           return;
         }
