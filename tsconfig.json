@@ -13,6 +13,7 @@
     "defs.ts",
 
     "external/GustavRedis.ts",
+    "external/GustavKafka.ts",
     "external/GustavMem.ts",
 
     "test/common.ts",
@@ -25,6 +26,7 @@
     "test/fullGraph.ts",
     "test/external.ts",
     "test/GRedis.ts",
+    "test/GKafka.ts",
     "test/GMem.ts",
 
     "Symbol.d.ts",

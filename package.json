@@ -10,6 +10,7 @@
     "prepublish": "npm run build",
     "snyk": "snyk test",
     "test": "mocha dist/test",
+    "test:int": "INTE=true npm run test -s",
     "test:watch": "mocha --watch dist/test"
   },
   "author": "Randall Koutnik",
@@ -24,6 +25,7 @@
   },
   "dependencies": {
     "@reactivex/rxjs": "5.0.0-beta.0",
+    "kafka-node": "^0.3.1",
     "node-uuid": "1.4.7",
     "redis": "^2.4.2",
     "tail": "~0.4.0"
