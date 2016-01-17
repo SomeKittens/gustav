@@ -7,11 +7,7 @@ import {expect} from 'chai';
 /**
  * Nodes common to all test workflows
  */
-let registered = false;
 export let addCommonNodes = gustav => {
-  // Avoids double registration problems
-  if (registered) { return; }
-  registered = true;
 
   // Used by several nodes
   let words = ['hello', 'world', 'gustav', 'is', 'neat'];

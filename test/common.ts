@@ -5,10 +5,12 @@ import {Workflow} from '../Workflow';
 import {expect} from 'chai';
 import {addCommonNodes} from './testNodes';
 
-addCommonNodes(gustav);
-
 // Couple of common workflows
 describe('Common workflows', () => {
+  beforeEach(() => {
+    gustav.reset();
+    addCommonNodes(gustav);
+  });
   let wfFactories = [];
 
   wfFactories.push((done): Workflow => {

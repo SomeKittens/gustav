@@ -3,11 +3,13 @@
 import {gustav} from '../index';
 import {addCommonNodes} from './testNodes';
 
-addCommonNodes(gustav);
-
 // TODO: not stupid way of doing this
 // i.e. no try/catch
 describe('Workflow start/stop', () => {
+  beforeEach(() => {
+    gustav.reset();
+    addCommonNodes(gustav);
+  });
   it('should be able to start & stop a workflow', (done) => {
     try {
       let firstRun = true;

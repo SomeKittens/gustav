@@ -4,11 +4,12 @@ import {gustav} from '../index';
 import {addCommonNodes} from './testNodes';
 import {expect} from 'chai';
 
-addCommonNodes(gustav);
-
 describe('FullGraph of multiple workflows', () => {
-  it('should create a full graph, including external nodes', () => {
+  beforeEach(() => {
     gustav.reset();
+    addCommonNodes(gustav);
+  });
+  it('should create a full graph, including external nodes', () => {
     gustav.createWorkflow('wf1')
       .source('intSource', undefined, {
         external: 'bill'

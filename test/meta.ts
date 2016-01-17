@@ -4,12 +4,13 @@ import {gustav} from '../index';
 import {addCommonNodes} from './testNodes';
 import {expect} from 'chai';
 
-addCommonNodes(gustav);
-
 // TODO: not stupid way of doing this
 // i.e. no try/catch
 describe('Node metadata', () => {
-
+  beforeEach(() => {
+    gustav.reset();
+    addCommonNodes(gustav);
+  });
   it('should be able to attach a metadata watcher', (done) => {
     try {
       let i = 0;

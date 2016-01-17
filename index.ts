@@ -2,7 +2,7 @@
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
-import {IMetaConfig} from './defs';
+import {IMetaConfig, IExternalClient} from './defs';
 
 export interface INodeFactory {
   (...config: any[]): symbol;
@@ -24,6 +24,14 @@ let registeredNodes: IRegisteredNode[] = [];
 let workflows = {};
 let register;
 let anonWfId = 0;
+
+// Meta nodes
+// TODO: move into its own file
+let registerMetaNodes = (gustav) => {
+  gustav.transformer('__gmergeNode', (nodes, iO) => {
+    return iO.do(() => {});
+  });
+};
 
 export let gustav = {
   makeNode: (nodeName: string, graph: GustavGraph, config: any, metaConfig?: IMetaConfig): symbol => {
@@ -64,6 +72,8 @@ export let gustav = {
   reset: (): void => {
     anonWfId = 0;
     workflows = {};
+    registeredNodes = [];
+    registerMetaNodes(gustav);
   },
   getNodeTypes: (): INodeCollection => {
     return registeredNodes.reduce((obj, node) => {
@@ -127,9 +137,13 @@ export let gustav = {
 
     return graph;
   },
-  source(name: string, factory: Function): Function { return register('source', name, factory); },
-  transformer(name: string, factory: Function): Function { return register('transformer', name, factory); },
-  sink(name: string, factory: Function): Function { return register('sink', name, factory); },
+  external: (externalConnector: IExternalClient): void => {
+    gustav.source('__from', (name) => externalConnector.from(name));
+    gustav.sink('__to', (name, iO) => externalConnector.to(name, iO));
+  },
+  source: (name: string, factory: Function): Function =>  { return register('source', name, factory); },
+  transformer: (name: string, factory: Function): Function => { return register('transformer', name, factory); },
+  sink: (name: string, factory: Function): Function => { return register('sink', name, factory); }
 };
 
 // TODO: new type of registration that's just a singleton
@@ -158,7 +172,4 @@ register = (type: string, name: string, factory): INodeFactory => {
   return gustav.makeNode.bind(null, name);
 };
 
-// Meta nodes
-gustav.transformer('__gmergeNode', (nodes, iO) => {
-  return iO.do(() => {});
-});
+registerMetaNodes(gustav);

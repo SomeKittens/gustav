@@ -12,6 +12,9 @@
     "Workflow.ts",
     "defs.ts",
 
+    "external/GustavRedis.ts",
+    "external/GustavMem.ts",
+
     "test/common.ts",
     "test/startstop.ts",
     "test/json.ts",
@@ -20,9 +23,9 @@
     "test/register.ts",
     "test/misc.ts",
     "test/fullGraph.ts",
+    "test/external.ts",
     "test/GRedis.ts",
-
-    "external/GustavRedis.ts",
+    "test/GMem.ts",
 
     "Symbol.d.ts",
     "Promise.d.ts",
