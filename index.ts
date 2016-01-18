@@ -141,8 +141,8 @@ export let gustav = {
     if (!couplerName) {
       couplerName = externalCoupler.defaultName;
     }
-    gustav.source('__from', (name) => externalCoupler.from(name));
-    gustav.sink('__to', (name, iO) => externalCoupler.to(name, iO));
+    gustav.source(`__from-${couplerName}`, (name) => externalCoupler.from(name));
+    gustav.sink(`__to-${couplerName}`, (name, iO) => externalCoupler.to(name, iO));
   },
   source: (name: string, factory: Function): Function =>  { return register('source', name, factory); },
   transformer: (name: string, factory: Function): Function => { return register('transformer', name, factory); },

@@ -162,7 +162,7 @@ export class Workflow {
   from (type: string, name: string): IWorkflowChain {
     let prevNode;
     try {
-      prevNode = gustav.makeNode('__from', this.ggraph, name, {external: name});
+      prevNode = gustav.makeNode(`__from-${type}`, this.ggraph, name, {external: name});
     } catch (e) {
       throw new Error(`Tried to define \`from\` node "${name}" with no external coupler defined`);
     }
@@ -298,7 +298,7 @@ class WorkflowChain {
   }
   to (type: string, name: string): Workflow {
     try {
-      this.addNodeToGraph('__to', 'sink', name, {external: name});
+      this.addNodeToGraph(`__to-${type}`, 'sink', name, {external: name});
     } catch (e) {
       throw new Error(`Tried to define \`to\` node "${name}" with no external coupler defined`);
     }
