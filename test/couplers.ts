@@ -17,25 +17,32 @@ describe('gustav.coupler', () => {
   wfFactories.push((done): Workflow => {
     return gustav.createWorkflow('ex-0')
       .source('intSource')
-      .to('redis', 'bill');
+      .to('mem', 'bill');
   });
 
   wfFactories.push((done): Workflow => {
     return gustav.createWorkflow('ex-1')
-      .from('redis', 'bill')
+      .from('mem', 'bill')
       .transf('timesTwo')
       .sink('fromIntTransformer', done);
   });
 
   it('allows for multiple workflows', (done) => {
-    gustav.coupler(gm, 'redis');
+    gustav.coupler(gm, 'mem');
+
+    wfFactories[1](done).start();
+    wfFactories[0]().start();
+  });
+
+  it('accepts a default name', (done) => {
+    gustav.coupler(gm);
 
     wfFactories[1](done).start();
     wfFactories[0]().start();
   });
 
   it('allows for forking workflows', done => {
-    gustav.coupler(gm, 'redis');
+    gustav.coupler(gm, 'mem');
     let inProgress = 3;
 
     let partDone = () => {
