@@ -42,7 +42,7 @@
   },
   "config": {
     "ghooks": {
-      "pre-commit": "npm test && npm run lint",
+      "pre-commit": "npm test -s && npm run lint -s",
       "commit-msg": "validate-commit-msg"
     }
   }
