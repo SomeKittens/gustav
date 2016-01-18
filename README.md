@@ -153,3 +153,25 @@ Further nodes can be chained onto it, using the following methods:
  - `.sink` Attach a sink (terminal, returns the workflow itself)
  - `merge(...nodes)` Merge several nodes into a single stream
  - `.tap` Attach a sink but return the previous node for chaining
+
+
+## Couplers
+
+Gustav is designed to work with an external tool that manages *where* all of the processed items go, while Gustav workflows manage the actual processing.  Redis, Kafka and RabbitMQ are currently supported as well as an in-memory processor that provides no guarantees and is best used for testing.
+
+These are used as such:
+
+```typescript
+
+// Second string param names the coupler
+// optional, and the coupler does come with a default
+gustav.coupler(new GustavRedis(), ‘myRedis’);
+
+// SInce we've specified a Redis coupler, the following automagically knows to listen to the `demo-in` channel and push any events down the workflow
+  .from('demo-in')
+  // Vanilla transformer node
+  .transf('someTransfNode')
+  // Anything hitting this sink publishes a message to the `demo-out` channel
+  .to('demo-out')
+  .start();
+```
