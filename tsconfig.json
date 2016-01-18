@@ -14,6 +14,7 @@
 
     "external/GustavRedis.ts",
     "external/GustavKafka.ts",
+    "external/GustavRabbit.ts",
     "external/GustavMem.ts",
 
     "test/common.ts",
@@ -27,6 +28,7 @@
     "test/external.ts",
     "test/GRedis.ts",
     "test/GKafka.ts",
+    "test/GRabbit.ts",
     "test/GMem.ts",
 
     "Symbol.d.ts",
