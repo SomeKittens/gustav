@@ -2,7 +2,7 @@
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
-import {IMetaConfig, IExternalClient} from './defs';
+import {IMetaConfig, ICoupler} from './defs';
 
 export interface INodeFactory {
   (...config: any[]): symbol;
@@ -137,9 +137,12 @@ export let gustav = {
 
     return graph;
   },
-  external: (externalConnector: IExternalClient): void => {
-    gustav.source('__from', (name) => externalConnector.from(name));
-    gustav.sink('__to', (name, iO) => externalConnector.to(name, iO));
+  coupler: (externalCoupler: ICoupler, couplerName?: string): void => {
+    if (!couplerName) {
+      couplerName = externalCoupler.defaultName;
+    }
+    gustav.source('__from', (name) => externalCoupler.from(name));
+    gustav.sink('__to', (name, iO) => externalCoupler.to(name, iO));
   },
   source: (name: string, factory: Function): Function =>  { return register('source', name, factory); },
   transformer: (name: string, factory: Function): Function => { return register('transformer', name, factory); },

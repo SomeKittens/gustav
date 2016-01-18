@@ -1,6 +1,6 @@
 'use strict';
 
-import {GustavMem} from '../external/GustavMem';
+import {GustavMem} from '../couplers/GustavMem';
 import {Observable} from '@reactivex/rxjs';
 
 import {expect} from 'chai';

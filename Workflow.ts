@@ -16,7 +16,7 @@ export interface IWorkflowChain {
   transf(name: string | ITransfNode, config?: any, metaConfig?: IMetaConfig): IWorkflowChain;
   sink(name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): Workflow;
   merge(...nodes: IWorkflowChain[]): IWorkflowChain;
-  to (name: string): Workflow;
+  to (type: string, name: string): Workflow;
   tap(name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): IWorkflowChain;
   clone(): IWorkflowChain;
 }
@@ -159,12 +159,12 @@ export class Workflow {
     return new WorkflowChain(this, prevNode);
   }
 
-  from (name: string): IWorkflowChain {
+  from (type: string, name: string): IWorkflowChain {
     let prevNode;
     try {
       prevNode = gustav.makeNode('__from', this.ggraph, name, {external: name});
     } catch (e) {
-      throw new Error(`Tried to define \`from\` node "${name}" with no external interface defined`);
+      throw new Error(`Tried to define \`from\` node "${name}" with no external coupler defined`);
     }
 
     return new WorkflowChain(this, prevNode);
@@ -296,11 +296,11 @@ class WorkflowChain {
     this.addNodeToGraph(name, 'sink', config, metaConfig);
     return new WorkflowChain(this.workflow, this.prevNode);
   }
-  to (name: string): Workflow {
+  to (type: string, name: string): Workflow {
     try {
       this.addNodeToGraph('__to', 'sink', name, {external: name});
     } catch (e) {
-      throw new Error(`Tried to define \`to\` node "${name}" with no external interface defined`);
+      throw new Error(`Tried to define \`to\` node "${name}" with no external coupler defined`);
     }
 
     return this.workflow;

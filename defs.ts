@@ -28,8 +28,9 @@ export interface ISinkNode {
   (config: Object, iO: Observable<any>): Subscription<any>;
 }
 
-export interface IExternalClient {
+export interface ICoupler {
   config?: any;
+  defaultName: string;
   getClient?(): any;
   from(name: string): Observable<any>;
   to(name: string, iO: Observable<any>): Subscription<any>;

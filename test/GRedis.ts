@@ -1,6 +1,6 @@
 'use strict';
 
-import {GustavRedis} from '../external/GustavRedis';
+import {GustavRedis} from '../couplers/GustavRedis';
 import {Observable} from '@reactivex/rxjs';
 
 import {expect} from 'chai';

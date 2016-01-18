@@ -1,18 +1,20 @@
 'use strict';
 
 import {Observable, Subscription} from '@reactivex/rxjs';
-import {IExternalClient} from '../defs';
+import {ICoupler} from '../defs';
 import {connect} from 'amqplib';
 import * as uuid from 'node-uuid';
 
 // Untested, use at own risk
 
 // Uses fanout exchanges so we can connect many queues to them
-export class GustavRabbit implements IExternalClient {
+export class GustavRabbit implements ICoupler {
+  defaultName: string;
   constructor(public config?: any) {
     this.config = this.config || {
       connString: 'amqp://localhost'
     };
+    this.defaultName = 'rabbitmq';
   }
 
   from(exchange: string): Observable<any> {

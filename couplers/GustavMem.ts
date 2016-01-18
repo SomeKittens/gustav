@@ -1,7 +1,7 @@
 'use strict';
 
 import {Observable, Subscription} from '@reactivex/rxjs';
-import {IExternalClient} from '../defs';
+import {ICoupler} from '../defs';
 
 /**
  * GustavMem is an in-memory messaging system.  It provides NO GUARANTEES about anything.
@@ -10,10 +10,12 @@ import {IExternalClient} from '../defs';
  * Mainly this is used for tests.
  */
 
-export class GustavMem implements IExternalClient {
+export class GustavMem implements ICoupler {
   channels: Object;
+  defaultName: string;
   constructor() {
     this.channels = {};
+    this.defaultName = 'mem';
   };
 
   from(channelName: string): Observable<any> {

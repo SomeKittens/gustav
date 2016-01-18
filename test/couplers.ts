@@ -2,11 +2,11 @@
 
 import {gustav} from '../index';
 import {Workflow} from '../Workflow';
-import {GustavMem} from '../external/GustavMem';
+import {GustavMem} from '../couplers/GustavMem';
 import {addCommonNodes} from './testNodes';
 
 
-describe('gustav.external', () => {
+describe('gustav.coupler', () => {
   let gm;
   beforeEach(() => {
     gustav.reset();
@@ -17,25 +17,25 @@ describe('gustav.external', () => {
   wfFactories.push((done): Workflow => {
     return gustav.createWorkflow('ex-0')
       .source('intSource')
-      .to('bill');
+      .to('redis', 'bill');
   });
 
   wfFactories.push((done): Workflow => {
     return gustav.createWorkflow('ex-1')
-      .from('bill')
+      .from('redis', 'bill')
       .transf('timesTwo')
       .sink('fromIntTransformer', done);
   });
 
   it('allows for multiple workflows', (done) => {
-    gustav.external(gm);
+    gustav.coupler(gm, 'redis');
 
     wfFactories[1](done).start();
     wfFactories[0]().start();
   });
 
   it('allows for forking workflows', done => {
-    gustav.external(gm);
+    gustav.coupler(gm, 'redis');
     let inProgress = 3;
 
     let partDone = () => {

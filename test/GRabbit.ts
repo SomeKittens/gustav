@@ -1,6 +1,6 @@
 'use strict';
 
-import {GustavRabbit} from '../external/GustavRabbit';
+import {GustavRabbit} from '../couplers/GustavRabbit';
 import {Observable} from '@reactivex/rxjs';
 import {expect} from 'chai';
 import {connect} from 'amqplib';

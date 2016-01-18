@@ -1,7 +1,7 @@
 'use strict';
 
 import {Observable, Subscription} from '@reactivex/rxjs';
-import {IExternalClient} from '../defs';
+import {ICoupler} from '../defs';
 
 // No definitions for kafka, sad
 let kafka = require('kafka-node');
@@ -11,12 +11,14 @@ export interface IConsumerConfig {
   offset?: any;
 }
 
-export class GustavKafka implements IExternalClient {
+export class GustavKafka implements ICoupler {
+  defaultName: string;
   constructor(public config?: any) {
     this.config = this.config || {
       connString: 'localhost:2181',
       clientId: 'kafka-gustav-client'
     };
+    this.defaultName = 'kafka';
   }
 
   getClient(): any {

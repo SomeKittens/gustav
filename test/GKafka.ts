@@ -1,6 +1,6 @@
 'use strict';
 
-import {GustavKafka} from '../external/GustavKafka';
+import {GustavKafka} from '../couplers/GustavKafka';
 import {Observable} from '@reactivex/rxjs';
 import {expect} from 'chai';
 

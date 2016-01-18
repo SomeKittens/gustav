@@ -12,10 +12,10 @@
     "Workflow.ts",
     "defs.ts",
 
-    "external/GustavRedis.ts",
-    "external/GustavKafka.ts",
-    "external/GustavRabbit.ts",
-    "external/GustavMem.ts",
+    "couplers/GustavRedis.ts",
+    "couplers/GustavKafka.ts",
+    "couplers/GustavRabbit.ts",
+    "couplers/GustavMem.ts",
 
     "test/common.ts",
     "test/startstop.ts",
@@ -25,7 +25,7 @@
     "test/register.ts",
     "test/misc.ts",
     "test/fullGraph.ts",
-    "test/external.ts",
+    "test/couplers.ts",
     "test/GRedis.ts",
     "test/GKafka.ts",
     "test/GRabbit.ts",
