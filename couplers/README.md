@@ -57,3 +57,27 @@ Given a string & Observable, subscribe to the Observable and push any events to 
 #### Note:
 
 Matching the above note, if the subscribed observable is completed, pass the string `__done` to the channel.
+
+## Connection configuration
+
+## Defaults
+
+The coupler should use smart defaults for connecting, such that the constructor can be called with no arguments and everything still works.  When possible, default to a passwordless default install of the tool on `localhost`.
+
+## Config
+
+When the user does pass in details, it should be in a single object with sane property names.  In other words, instead of:
+
+`let g = new GustavDemo(ip, port, dbName, userName, lugnuts);`
+
+Use:
+
+```typescript
+let g = new GustavDemo({
+    ip,
+    port,
+    dbName,
+    userName,
+    lugNuts
+});
+```
