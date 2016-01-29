@@ -28,12 +28,12 @@
     "tail": "~0.4.0"
   },
   "devDependencies": {
-    "chai": "~3.4.1",
+    "chai": "~3.5.0",
     "ghooks": "~1.0.3",
-    "mocha": "~2.3.4",
+    "mocha": "~2.4.4",
     "snyk": "1.8.x",
     "tsd": "~0.6.5",
-    "tslint": "~3.2.0",
+    "tslint": "~3.3.0",
     "typescript": "~1.7.3",
     "validate-commit-msg": "~1.1.0"
   },
