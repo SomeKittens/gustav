@@ -19,11 +19,19 @@ export interface ICoupler {
 
 ### `config?: any`
 
-The coupler may expose an optional config property of any sort.
+The coupler may expose an optional config property of any sort.  For instance, a config for [GustavRedis](https://github.com/SomeKittens/gustav/blob/master/couplers/GustavRedis.ts) might look like:
+
+```typescript
+{
+  host: 1.2.3.4,
+  port: 1337,
+  connect_timeout: 9001
+}
+```
 
 ### `defaultName`
 
-If the user does not pass in a name, this will be used instead.  Example:
+If the implementing code does not pass in a name, this will be used instead.  Example:
 
 ```typescript
 let dc = new DemoCoupler();
@@ -66,7 +74,7 @@ The coupler should use smart defaults for connecting, such that the constructor 
 
 ## Config
 
-When the user does pass in details, it should be in a single object with sane property names.  In other words, instead of:
+When the implementing code does pass in details, it should be in a single object with sane property names.  In other words, instead of:
 
 `let g = new GustavDemo(ip, port, dbName, userName, lugnuts);`
 
