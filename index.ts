@@ -4,6 +4,12 @@ import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
 import {IMetaConfig, ICoupler} from './defs';
 
+import * as GR from './couplers/GustavRedis';
+import * as GK from './couplers/GustavKafka';
+
+export let GustavRedis = GR.GustavRedis;
+export let GustavKafka = GK.GustavKafka;
+
 export interface INodeFactory {
   (...config: any[]): symbol;
 }
