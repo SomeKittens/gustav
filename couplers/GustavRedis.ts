@@ -4,8 +4,6 @@ import {createClient, RedisClient} from 'redis';
 import {Observable, Subscription} from '@reactivex/rxjs';
 import {ICoupler} from '../defs';
 
-// Attach to a Gustav instance
-
 // Provides helpers for getting data from & to Redis event channels
 export class GustavRedis implements ICoupler {
   defaultName: string;
@@ -24,6 +22,9 @@ export class GustavRedis implements ICoupler {
     let client = this.getClient();
     return new Observable(o => {
       client.on('message', (channel, message) => {
+        if (message === '__done') {
+          return o.complete();
+        }
         o.next(message);
       });
       client.subscribe(channelName);
@@ -34,7 +35,9 @@ export class GustavRedis implements ICoupler {
   to(channelName: string, iO: Observable<any>): Subscription<any> {
     let client = this.getClient();
     return iO.subscribe(
-      item => client.publish(channelName, item)
+      item => client.publish(channelName, item),
+      err => { throw err; },
+      () => client.publish(channelName, '__done')
     );
   }
 }

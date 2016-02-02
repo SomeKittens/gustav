@@ -34,7 +34,12 @@ export class GustavKafka implements ICoupler {
     }]/* TODO */);
 
     return new Observable(o => {
-      consumer.on('message', m => o.next(m.value));
+      consumer.on('message', m => {
+        if (m.value === '__done') {
+          return o.complete();
+        }
+        o.next(m.value)
+      });
       consumer.on('error', err => o.error(err));
 
       return () => consumer.close(() => {});
@@ -79,7 +84,12 @@ export class GustavKafka implements ICoupler {
         }], handleErr);
       },
       handleErr,
-      () => {/* noop */}// client.close(console.log.bind(console, 'done', config.topic))
+      () => {
+        producer.send([{
+          topic: topic,
+          messages: ['__done']
+        }]);
+      }
     );
   }
 }

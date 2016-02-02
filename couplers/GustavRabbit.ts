@@ -29,8 +29,12 @@ export class GustavRabbit implements ICoupler {
 
         ch.bindQueue(queue, exchange, '');
         ch.consume(queue, msg => {
-          o.next(msg.content.toString());
+          let msgStr = msg.content.toString();
           ch.ack(msg);
+          if (msgStr === '__done') {
+            return o.complete();
+          }
+          o.next(msgStr);
         }, {noAck: false});
       })
       .catch(err => o.error(err));
@@ -65,7 +69,12 @@ export class GustavRabbit implements ICoupler {
           channel.publish(exchange, '', new Buffer(msg));
         },
         err => console.error(`rabbitSink err, queue: ${queue}`, err),
-        () => conn && conn.close()
+        () => {
+          if (conn) {
+            channel.publish(exchange, '', new Buffer('__done'));
+            conn.close()
+          }
+        }
       );
   }
 }
