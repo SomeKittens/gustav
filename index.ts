@@ -143,7 +143,7 @@ export let gustav = {
 
     return graph;
   },
-  coupler: (externalCoupler: ICoupler, couplerName?: string): void => {
+  addCoupler: (externalCoupler: ICoupler, couplerName?: string): void => {
     if (!couplerName) {
       couplerName = externalCoupler.defaultName;
     }

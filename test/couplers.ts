@@ -6,7 +6,7 @@ import {GustavMem} from '../couplers/GustavMem';
 import {addCommonNodes} from './testNodes';
 
 
-describe('gustav.coupler', () => {
+describe('gustav.addCoupler', () => {
   let gm;
   beforeEach(() => {
     gustav.reset();
@@ -41,22 +41,22 @@ describe('gustav.coupler', () => {
   });
 
   it('allows for multiple workflows', (done) => {
-    gustav.coupler(gm, 'mem');
+    gustav.addCoupler(gm, 'mem');
 
     wfFactories[1](done).start();
     wfFactories[0]().start();
   });
 
   it('accepts a default name', (done) => {
-    gustav.coupler(gm);
+    gustav.addCoupler(gm);
 
     wfFactories[1](done).start();
     wfFactories[0]().start();
   });
 
   it('allows for multiple couplers', done => {
-    gustav.coupler(gm);
-    gustav.coupler(new GustavMem(), 'mem2');
+    gustav.addCoupler(gm);
+    gustav.addCoupler(new GustavMem(), 'mem2');
 
     wfFactories[3](done).start();
     wfFactories[2]().start();
@@ -64,7 +64,7 @@ describe('gustav.coupler', () => {
   });
 
   it('allows for forking workflows', done => {
-    gustav.coupler(gm, 'mem');
+    gustav.addCoupler(gm, 'mem');
     let inProgress = 3;
 
     let partDone = () => {
