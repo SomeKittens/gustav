@@ -2,7 +2,13 @@
 
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
-import {IMetaConfig} from './defs';
+import {IMetaConfig, ICoupler} from './defs';
+
+import * as GR from './couplers/GustavRedis';
+import * as GK from './couplers/GustavKafka';
+
+export let GustavRedis = GR.GustavRedis;
+export let GustavKafka = GK.GustavKafka;
 
 export interface INodeFactory {
   (...config: any[]): symbol;
@@ -24,6 +30,14 @@ let registeredNodes: IRegisteredNode[] = [];
 let workflows = {};
 let register;
 let anonWfId = 0;
+
+// Meta nodes
+// TODO: move into its own file
+let registerMetaNodes = (gustav) => {
+  gustav.transformer('__gmergeNode', (nodes, iO) => {
+    return iO.do(() => {});
+  });
+};
 
 export let gustav = {
   makeNode: (nodeName: string, graph: GustavGraph, config: any, metaConfig?: IMetaConfig): symbol => {
@@ -64,6 +78,8 @@ export let gustav = {
   reset: (): void => {
     anonWfId = 0;
     workflows = {};
+    registeredNodes = [];
+    registerMetaNodes(gustav);
   },
   getNodeTypes: (): INodeCollection => {
     return registeredNodes.reduce((obj, node) => {
@@ -127,9 +143,16 @@ export let gustav = {
 
     return graph;
   },
-  source(name: string, factory: Function): Function { return register('source', name, factory); },
-  transformer(name: string, factory: Function): Function { return register('transformer', name, factory); },
-  sink(name: string, factory: Function): Function { return register('sink', name, factory); },
+  addCoupler: (externalCoupler: ICoupler, couplerName?: string): void => {
+    if (!couplerName) {
+      couplerName = externalCoupler.defaultName;
+    }
+    gustav.source(`__from-${couplerName}`, (name) => externalCoupler.from(name));
+    gustav.sink(`__to-${couplerName}`, (name, iO) => externalCoupler.to(name, iO));
+  },
+  source: (name: string, factory: Function): Function =>  { return register('source', name, factory); },
+  transformer: (name: string, factory: Function): Function => { return register('transformer', name, factory); },
+  sink: (name: string, factory: Function): Function => { return register('sink', name, factory); }
 };
 
 // TODO: new type of registration that's just a singleton
@@ -158,7 +181,4 @@ register = (type: string, name: string, factory): INodeFactory => {
   return gustav.makeNode.bind(null, name);
 };
 
-// Meta nodes
-gustav.transformer('__gmergeNode', (nodes, iO) => {
-  return iO.do(() => {});
-});
+registerMetaNodes(gustav);

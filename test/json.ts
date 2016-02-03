@@ -5,8 +5,11 @@ import {INodeDef} from '../defs';
 import {expect} from 'chai';
 import {addCommonNodes} from './testNodes';
 
-addCommonNodes(gustav);
 describe(`Workflow's .fromJSON()`, () => {
+  beforeEach(() => {
+    gustav.reset();
+    addCommonNodes(gustav);
+  });
   let noop = (): void => {};
   let simpleWf = (done): INodeDef[] => [{
     id: 1,

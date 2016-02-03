@@ -11,6 +11,12 @@
     "helpers.ts",
     "Workflow.ts",
     "defs.ts",
+
+    "couplers/GustavRedis.ts",
+    "couplers/GustavKafka.ts",
+    "couplers/GustavRabbit.ts",
+    "couplers/GustavMem.ts",
+
     "test/common.ts",
     "test/startstop.ts",
     "test/json.ts",
@@ -19,6 +25,11 @@
     "test/register.ts",
     "test/misc.ts",
     "test/fullGraph.ts",
+    "test/couplers.ts",
+    "test/GRedis.ts",
+    "test/GKafka.ts",
+    "test/GRabbit.ts",
+    "test/GMem.ts",
 
     "Symbol.d.ts",
     "Promise.d.ts",

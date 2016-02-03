@@ -4,9 +4,11 @@ import {gustav} from '../index';
 import {expect} from 'chai';
 import {addCommonNodes} from './testNodes';
 
-addCommonNodes(gustav);
-
 describe('registration errors', () => {
+  beforeEach(() => {
+    gustav.reset();
+    addCommonNodes(gustav);
+  });
   it('should throw an error when we forget a name', () => {
     let thrower = () => gustav.source('', () => {});
 

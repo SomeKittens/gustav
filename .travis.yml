@@ -9,7 +9,7 @@ node_js:
   - "4.1"
   - "4.0"
 env:
- - TSD_GITHUB_TOKEN=dc0dec2e633e1366658a40961cdcf389eaf3dfba
+ - TSD_GITHUB_TOKEN=dc0dec2e633e1366658a40961cdcf389eaf3dfba CC=clang CXX=clang++ npm_config_clang=1z
 script:
   - npm run lint
   - npm test

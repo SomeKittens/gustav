@@ -1,15 +1,16 @@
 {
   "name": "gustav",
-  "version": "0.6.16",
+  "version": "0.6.17",
   "description": "Framework for building realtime processing flows in Node.js",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsd install && tsc",
     "build:watch": "tsc --watch",
-    "lint": "tslint *.ts && tslint test/*.ts",
+    "lint": "tslint *.ts && tslint external/*.ts && tslint test/*.ts",
     "prepublish": "npm run build",
     "snyk": "snyk test",
     "test": "mocha dist/test",
+    "test:int": "INTE=true npm run test -s",
     "test:watch": "mocha --watch dist/test"
   },
   "author": "Randall Koutnik",
@@ -24,7 +25,10 @@
   },
   "dependencies": {
     "@reactivex/rxjs": "5.0.0-beta.0",
+    "amqplib": "^0.4.0",
+    "kafka-node": "^0.3.1",
     "node-uuid": "1.4.7",
+    "redis": "^2.4.2",
     "tail": "~0.4.0"
   },
   "devDependencies": {

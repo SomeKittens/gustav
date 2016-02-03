@@ -16,6 +16,7 @@ export interface IWorkflowChain {
   transf(name: string | ITransfNode, config?: any, metaConfig?: IMetaConfig): IWorkflowChain;
   sink(name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): Workflow;
   merge(...nodes: IWorkflowChain[]): IWorkflowChain;
+  to (type: string, name: string): Workflow;
   tap(name: string | ISinkNode, config?: any, metaConfig?: IMetaConfig): IWorkflowChain;
   clone(): IWorkflowChain;
 }
@@ -157,6 +158,17 @@ export class Workflow {
     let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, sourceConfig, metaConfig);
     return new WorkflowChain(this, prevNode);
   }
+
+  from (type: string, name: string): IWorkflowChain {
+    let prevNode;
+    try {
+      prevNode = gustav.makeNode(`__from-${type}`, this.ggraph, name, {external: name});
+    } catch (e) {
+      throw new Error(`Tried to define \`from\` node "${name}" with no external coupler defined`);
+    }
+
+    return new WorkflowChain(this, prevNode);
+  }
   /**
    * Creates a workflow from a JSON definition
    * @param  {INodeDef[]} config Array of node definitions to make the workflow from
@@ -283,6 +295,15 @@ class WorkflowChain {
   tap (name: string | ISinkNode, config?, metaConfig?: IMetaConfig): IWorkflowChain {
     this.addNodeToGraph(name, 'sink', config, metaConfig);
     return new WorkflowChain(this.workflow, this.prevNode);
+  }
+  to (type: string, name: string): Workflow {
+    try {
+      this.addNodeToGraph(`__to-${type}`, 'sink', name, {external: name});
+    } catch (e) {
+      throw new Error(`Tried to define \`to\` node "${name}" with no external coupler defined`);
+    }
+
+    return this.workflow;
   }
   clone(): IWorkflowChain {
     return new WorkflowChain(this.workflow, this.prevNode);
