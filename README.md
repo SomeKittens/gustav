@@ -167,7 +167,7 @@ These are used as such:
 // optional, and the coupler does come with a default
 gustav.coupler(new GustavRedis(), 'myRedis');
 
-// SInce we've specified a Redis coupler, the following automagically knows to listen to the `demo-in` channel and push any events down the workflow
+// Since we've specified a Redis coupler, the following automagically knows to listen to the `demo-in` channel and push any events down the workflow
   .from('demo-in')
   // Vanilla transformer node
   .transf('someTransfNode')
