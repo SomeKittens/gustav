@@ -25,6 +25,11 @@ export class GustavRedis implements ICoupler {
         if (message === '__done') {
           return o.complete();
         }
+        try {
+          // If this is parseable, do that
+          // Otherwise, just silently catch the error and move on
+          message = JSON.parse(message);
+        } catch (e) {}
         o.next(message);
       });
       client.subscribe(channelName);
@@ -35,7 +40,12 @@ export class GustavRedis implements ICoupler {
   to(channelName: string, iO: Observable<any>): Subscription<any> {
     let client = this.getClient();
     return iO.subscribe(
-      item => client.publish(channelName, item),
+      item => {
+        if (typeof item !== 'string') {
+          item = JSON.stringify(item);
+        }
+        client.publish(channelName, item);
+      },
       err => { throw err; },
       () => client.publish(channelName, '__done')
     );
