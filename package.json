@@ -35,11 +35,11 @@
     "chai": "~3.5.0",
     "ghooks": "~1.0.3",
     "mocha": "~2.4.4",
-    "snyk": "1.8.x",
+    "snyk": "1.9.x",
     "tsd": "~0.6.5",
     "tslint": "~3.3.0",
     "typescript": "~1.7.3",
-    "validate-commit-msg": "~1.1.0"
+    "validate-commit-msg": "~2.0.0"
   },
   "engines": {
     "node": ">=4.x.x"
