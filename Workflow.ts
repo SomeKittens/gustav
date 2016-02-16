@@ -129,7 +129,7 @@ export class Workflow {
       throw new Error('Attempted to add a listener to an ongoing Workflow');
     }
 
-    let listenerNode = gustav.makeNode(def.name, this.ggraph, def.config, def.metaConfig);
+    let listenerNode = gustav.makeNode(def.name, 'source', this.ggraph, def.config, def.metaConfig);
 
     this.ggraph.sinkEdges
       .map(edge => edge.to)
@@ -155,14 +155,14 @@ export class Workflow {
       this.external.source.push(metaConfig.external);
     }
 
-    let prevNode = gustav.makeNode(<string>sourceName, this.ggraph, sourceConfig, metaConfig);
+    let prevNode = gustav.makeNode(<string>sourceName, 'source', this.ggraph, sourceConfig, metaConfig);
     return new WorkflowChain(this, prevNode);
   }
 
   from (type: string, name: string): IWorkflowChain {
     let prevNode;
     try {
-      prevNode = gustav.makeNode(`__from-${type}`, this.ggraph, name, {external: name});
+      prevNode = gustav.makeNode(`__from-${type}`, 'source', this.ggraph, name, {external: name});
     } catch (e) {
       throw new Error(`Tried to define \`from\` node "${name}" with no external coupler defined`);
     }
@@ -251,7 +251,7 @@ export class Workflow {
 
     // Create a new node for each def
     this.nodeDefs.forEach(def => {
-      let sym = gustav.makeNode(def.name, this.ggraph, def.config, def.metaConfig);
+      let sym = gustav.makeNode(def.name, def.type, this.ggraph, def.config, def.metaConfig);
       idSymbolMap[def.id] = sym;
     });
 
@@ -286,7 +286,7 @@ class WorkflowChain {
     // TODO: Support adding a registered node here
     let nodes = chains.map(chain => chain.prevNode);
     nodes.push(this.prevNode);
-    let mergeNode = gustav.makeNode('__gmergeNode', this.workflow.ggraph, nodes);
+    let mergeNode = gustav.makeNode('__gmergeNode', 'transformer', this.workflow.ggraph, nodes);
 
     nodes.forEach(node => this.workflow.ggraph.addEdge(mergeNode, node));
     this.prevNode = mergeNode;
@@ -325,7 +325,7 @@ class WorkflowChain {
       this.workflow.external[type].push(metaConfig.external);
     }
 
-    let currentNode = gustav.makeNode(name, this.workflow.ggraph, config, metaConfig);
+    let currentNode = gustav.makeNode(name, type, this.workflow.ggraph, config, metaConfig);
 
     this.workflow.ggraph.addEdge(currentNode, this.prevNode);
 
@@ -335,7 +335,7 @@ class WorkflowChain {
   }
   // Allows us to use user-provided factories
   private registerTmpNode (type, factory): string {
-    let name = uuid.v4();
+    let name = factory.__gname || uuid.v4();
     gustav[type](name, factory);
     return name;
   }

@@ -1,5 +1,8 @@
 'use strict';
 
+import * as fs from 'fs';
+import * as path from 'path';
+
 import {GustavGraph} from './GustavGraph';
 import {Workflow} from './Workflow';
 import {IMetaConfig, ICoupler} from './defs';
@@ -22,7 +25,6 @@ export interface INodeCollection {
 
 export interface IRegisteredNode {
   name: string;
-  type: string;
   factory: Function;
 }
 
@@ -40,7 +42,7 @@ let registerMetaNodes = (gustav) => {
 };
 
 export let gustav = {
-  makeNode: (nodeName: string, graph: GustavGraph, config: any, metaConfig?: IMetaConfig): symbol => {
+  makeNode: (nodeName: string, type: string, graph: GustavGraph, config: any, metaConfig?: IMetaConfig): symbol => {
     let node = registeredNodes.filter((regNode) => regNode.name === nodeName)[0];
 
     if (!node) {
@@ -54,7 +56,7 @@ export let gustav = {
     }
     let sym = Symbol(symbolTag);
     graph.nodes[sym] = {
-      type: node.type,
+      type,
       config: config, // Storing config here for later toJSON calls
       init: config ? node.factory.bind(null, config) : node.factory
     };
@@ -81,12 +83,14 @@ export let gustav = {
     registeredNodes = [];
     registerMetaNodes(gustav);
   },
-  getNodeTypes: (): INodeCollection => {
-    return registeredNodes.reduce((obj, node) => {
-      obj[node.type].push(node.name);
-      return obj;
-    }, {source: [], transformer: [], sink: []});
-  },
+  // Currently we don't have types 100% of the time with the new autoregistration system
+  // Taking this out until we figure out a way to do that
+  // getNodeTypes: (): INodeCollection => {
+  //   return registeredNodes.reduce((obj, node) => {
+  //     obj[node.type].push(node.name);
+  //     return obj;
+  //   }, {source: [], transformer: [], sink: []});
+  // },
   makeGraph: (): any => {
     let id = 0;
     let graph = {
@@ -173,12 +177,48 @@ register = (type: string, name: string, factory): INodeFactory => {
     throw new Error(`${name} already registered`);
   }
   registeredNodes.push({
-    type,
     name,
     factory
   });
 
-  return gustav.makeNode.bind(null, name);
+  return gustav.makeNode.bind(null, name, type);
+};
+
+/**
+ * Searches through your project's node_modules folder and autoloads any module with the prefix `gustav-`
+ * @param {...filenames} Optional array of filenames to also load
+ */
+// Known bug: only works if filenames are relative to where node was executed (not the file that called autoregister)
+export let autoregister = (...filenames) => {
+  let x = new Error('pants');
+  console.log(x.stack.split('\n')[2]);
+
+
+
+  // read all folders in node_modules, filter by `gustav-` prefix
+  let modules = path.join(process.cwd(), 'node_modules');
+
+  let gmodules = fs.readdirSync(modules)
+    .filter((file) => fs.statSync(path.join(modules, file)).isDirectory() && file.indexOf('gustav-') === 0)
+    .map(filename => path.join(process.cwd(), 'node_modules', filename));
+
+  // For all folders in node_modules + all filenames passed in
+  gmodules
+    .concat(filenames.map(fn => path.join(process.cwd(), fn)))
+    .forEach(modName => {
+      let nodes = require(modName);
+      Object.keys(nodes)
+        .forEach(key => {
+          let node = registeredNodes.filter((regNode) => regNode.name === key)[0];
+          if (node) {
+            throw new Error(`Attempted to register node named ${key} but a node with that name already exists`);
+          }
+          registeredNodes.push({
+            name: key,
+            factory: nodes[key]
+          });
+        });
+    });
 };
 
 registerMetaNodes(gustav);

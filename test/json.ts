@@ -13,60 +13,72 @@ describe(`Workflow's .fromJSON()`, () => {
   let noop = (): void => {};
   let simpleWf = (done): INodeDef[] => [{
     id: 1,
-    name: 'intSource'
+    name: 'intSource',
+    type: 'source'
   }, {
     id: 2,
     name: 'fromIntSource',
     dataFrom: 1,
-    config: done
+    config: done,
+    type: 'sink'
   }];
 
   let threeWf = (done): INodeDef[] => ([{
     id: 1,
-    name: 'intSource'
+    name: 'intSource',
+    type: 'source'
   }, {
     id: 2,
     name: 'timesTwo',
-    dataFrom: 1
+    dataFrom: 1,
+    type: 'transformer'
   }, {
     id: 3,
     name: 'fromIntTransformer',
     dataFrom: 2,
-    config: done
+    config: done,
+    type: 'sink'
   }]);
 
   let strWf = (done): INodeDef[] => ([{
     id: 1,
-    name: 'strSource'
+    name: 'strSource',
+    type: 'source'
   }, {
     id: 2,
     name: 'important',
-    dataFrom: 1
+    dataFrom: 1,
+    type: 'transformer'
   }, {
     id: 3,
     name: 'fromStrTransformer',
     dataFrom: 2,
-    config: done
+    config: done,
+    type: 'sink'
   }]);
 
   // Multiple paths
   let forkWf = (done): INodeDef[] => ([{
     id: 1,
-    name: 'intSource'
+    name: 'intSource',
+    type: 'source'
   }, {
     id: 2,
     name: 'timesTwo',
-    dataFrom: 1
+    dataFrom: 1,
+    type: 'transformer'
   }, {
     id: 3,
     name: 'fromIntSource',
     dataFrom: 1,
-    config: noop
+    config: noop,
+    type: 'transformer'
   }, {
     id: 4,
     name: 'fromIntTransformer',
     dataFrom: 2,
-    config: done
+    config: done,
+    type: 'sink'
   }]);
 
 
