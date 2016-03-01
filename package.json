@@ -38,7 +38,7 @@
     "snyk": "1.11.x",
     "tsd": "~0.6.5",
     "tslint": "~3.5.0",
-    "typescript": "1.8.x",
+    "typescript": "1.8.5",
     "validate-commit-msg": "~2.1.0"
   },
   "engines": {
