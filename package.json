@@ -29,7 +29,7 @@
     "kafka-node": "^0.3.1",
     "node-uuid": "1.4.7",
     "redis": "^2.4.2",
-    "tail": "~0.4.0"
+    "tail": "~1.0.0"
   },
   "devDependencies": {
     "chai": "~3.5.0",
