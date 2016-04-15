@@ -1,6 +1,6 @@
 {
   "name": "gustav",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Framework for building realtime processing flows in Node.js",
   "main": "dist/index.js",
   "scripts": {
