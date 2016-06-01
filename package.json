@@ -28,7 +28,7 @@
     "amqplib": "^0.4.0",
     "kafka-node": "^0.3.1",
     "node-uuid": "1.4.7",
-    "redis": "2.5.x",
+    "redis": "2.6.0",
     "tail": "1.1.x"
   },
   "devDependencies": {
