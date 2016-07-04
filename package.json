@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "chai": "~3.5.0",
-    "ghooks": "1.2.x",
+    "ghooks": "1.3.2",
     "mocha": "~2.4.4",
     "snyk": "1.13.x",
     "tsd": "~0.6.5",
