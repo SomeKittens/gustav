@@ -35,7 +35,7 @@
     "chai": "~3.5.0",
     "ghooks": "1.2.x",
     "mocha": "~2.4.4",
-    "snyk": "1.13.x",
+    "snyk": "1.17.1",
     "tsd": "~0.6.5",
     "tslint": "3.7.x",
     "typescript": "1.8.x",
