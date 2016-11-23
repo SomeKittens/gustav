@@ -37,7 +37,7 @@
     "mocha": "~2.4.4",
     "snyk": "1.13.x",
     "tsd": "~0.6.5",
-    "tslint": "3.7.x",
+    "tslint": "4.0.2",
     "typescript": "1.8.x",
     "validate-commit-msg": "~2.6.0"
   },
