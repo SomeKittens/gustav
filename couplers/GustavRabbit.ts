@@ -3,7 +3,7 @@
 import {Observable, Subscription} from '@reactivex/rxjs';
 import {ICoupler} from '../defs';
 import {connect} from 'amqplib';
-import * as uuid from 'node-uuid';
+import * as uuid from 'uuid';
 
 // Untested, use at own risk
 

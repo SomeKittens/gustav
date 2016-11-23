@@ -4,7 +4,7 @@ import {GustavRabbit} from '../couplers/GustavRabbit';
 import {Observable} from '@reactivex/rxjs';
 import {expect} from 'chai';
 import {connect} from 'amqplib';
-import * as uuid from 'node-uuid';
+import * as uuid from 'uuid';
 
 describe('GustavRabbit', () => {
   // Hacky way of doing integration testing

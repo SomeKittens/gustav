@@ -4,7 +4,7 @@
 import {GustavGraph} from './GustavGraph';
 import {gustav} from './index';
 import {Observable} from '@reactivex/rxjs';
-import * as uuid from 'node-uuid';
+import * as uuid from 'uuid';
 import {INodeDef, ISourceNode, ITransfNode, ISinkNode, IMetaConfig} from './defs';
 
 export interface IStrongNodeDef extends INodeDef {

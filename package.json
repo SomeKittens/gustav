@@ -27,9 +27,9 @@
     "@reactivex/rxjs": "5.0.0-beta.0",
     "amqplib": "^0.4.0",
     "kafka-node": "^0.3.1",
-    "node-uuid": "1.4.7",
     "redis": "2.5.x",
-    "tail": "1.1.x"
+    "tail": "1.1.x",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "chai": "~3.5.0",
